@@ -1,8 +1,8 @@
 package fr.flwrian.codefarm;
 
 public class World {
-    int width = 20;
-    int height = 15;
+    int width = 200;
+    int height = 150;
     int tileSize = 32;
 
     public static final int EMPTY = 0;

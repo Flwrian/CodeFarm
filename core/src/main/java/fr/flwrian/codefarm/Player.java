@@ -27,7 +27,13 @@ public class Player {
 
     public boolean canMove(World w, int dx, int dy) {
         int tile = w.getTile(x + dx, y + dy);
-        return tile != World.TREE && tile != World.STONE;
+        return tile != World.TREE && tile != World.STONE && inWorldBounds(w, dx, dy);
+    }
+
+    public boolean inWorldBounds(World w, int dx, int dy) {
+        int newX = x + dx;
+        int newY = y + dy;
+        return newX >= 0 && newX < w.width && newY >= 0 && newY < w.height;
     }
 
     public boolean move(World w, int dx, int dy) {

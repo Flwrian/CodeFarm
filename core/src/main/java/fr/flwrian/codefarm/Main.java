@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import fr.flwrian.codefarm.controller.Controller;
 import fr.flwrian.codefarm.controller.GameContext;
@@ -17,53 +20,52 @@ import fr.flwrian.codefarm.controller.KeyboardController;
 public class Main extends ApplicationAdapter {
 
     private SpriteBatch batch;
-    private Texture playerTex;
+
+    private Texture playerTex, grassTex, treeTex, stoneTex, baseTex;
 
     private Player player;
     private World world;
     private Base base;
 
-    private Texture grassTex;
-    private Texture treeTex;
-    private Texture stoneTex;
-    private Texture baseTex;
-
     private Controller controller;
     private GameContext ctx;
 
-    private OrthographicCamera camera;
+    private OrthographicCamera worldCamera;
     private OrthographicCamera uiCamera;
-    private static final float CAMERA_LERP = 0.1f;
+    private Viewport worldViewport;
+    private Viewport uiViewport;
 
     private BitmapFont font;
+
+    private static final float WORLD_VIEW_WIDTH = 640;
+    private static final float WORLD_VIEW_HEIGHT = 480;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
+
         playerTex = makeColorTexture(Color.RED);
+        grassTex = makeColorTexture(Color.PINK);
+        treeTex = makeColorTexture(new Color(0.4f, 0.25f, 0.1f, 1));
+        stoneTex = makeColorTexture(Color.GRAY);
         baseTex = makeColorTexture(Color.BROWN);
 
         world = new World();
         player = new Player(1, 1);
         base = new Base(0, 0);
 
-        grassTex = makeColorTexture(Color.PINK);
-        treeTex = makeColorTexture(new Color(0.4f, 0.25f, 0.1f, 1));
-        stoneTex = makeColorTexture(Color.GRAY);
-
-        font = new BitmapFont();
-
         ctx = new GameContext(player, world, base);
         controller = new KeyboardController();
 
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 640, 480);
-        camera.position.set(320, 240, 0);
-        camera.update();
+        font = new BitmapFont();
 
+        worldCamera = new OrthographicCamera();
         uiCamera = new OrthographicCamera();
-        uiCamera.setToOrtho(false, 640, 480);
-        uiCamera.update();
+
+        worldViewport = new FitViewport(WORLD_VIEW_WIDTH, WORLD_VIEW_HEIGHT, worldCamera);
+        uiViewport = new ScreenViewport(uiCamera);
+
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     private Texture makeColorTexture(Color c) {
@@ -81,28 +83,49 @@ public class Main extends ApplicationAdapter {
 
         player.update(dt);
         controller.update(ctx);
-
-        // world cam
-        float targetX = player.x * world.tileSize + world.tileSize / 2f;
-        float targetY = player.y * world.tileSize + world.tileSize / 2f;
-
-        camera.position.x += (targetX - camera.position.x) * CAMERA_LERP;
-        camera.position.y += (targetY - camera.position.y) * CAMERA_LERP;
-        camera.update();
+        updateCamera(dt);
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        batch.begin();
 
-        // world
-        batch.setProjectionMatrix(camera.combined);
+        // Monde
+        batch.setProjectionMatrix(worldCamera.combined);
+        batch.begin();
         renderWorld();
         renderPlayer();
+        batch.end();
 
         // UI
         batch.setProjectionMatrix(uiCamera.combined);
+        batch.begin();
         renderUI();
-
         batch.end();
+    }
+
+    private void updateCamera(float dt) {
+        float targetX = player.x * world.tileSize + world.tileSize / 2f;
+        float targetY = player.y * world.tileSize + world.tileSize / 2f;
+
+        float speed = 8f;
+        float alpha = 1f - (float)Math.exp(-speed * dt);
+        worldCamera.position.x += (targetX - worldCamera.position.x) * alpha;
+        worldCamera.position.y += (targetY - worldCamera.position.y) * alpha;
+
+        float worldW = world.width * world.tileSize;
+        float worldH = world.height * world.tileSize;
+        float halfW = worldCamera.viewportWidth / 2f;
+        float halfH = worldCamera.viewportHeight / 2f;
+
+        if (worldW <= worldCamera.viewportWidth)
+            worldCamera.position.x = worldW / 2f;
+        else
+            worldCamera.position.x = Math.max(halfW, Math.min(worldCamera.position.x, worldW - halfW));
+
+        if (worldH <= worldCamera.viewportHeight)
+            worldCamera.position.y = worldH / 2f;
+        else
+            worldCamera.position.y = Math.max(halfH, Math.min(worldCamera.position.y, worldH - halfH));
+
+        worldCamera.update();
     }
 
     private void renderWorld() {
@@ -134,10 +157,16 @@ public class Main extends ApplicationAdapter {
     private void renderUI() {
         font.draw(batch,
                 "Wood: " + player.wood +
-                        "  Stone: " + player.stone +
-                        "  Base Wood: " + base.storedWood +
-                        "  Base Stone: " + base.storedStone,
-                10, 470);
+                "  Stone: " + player.stone +
+                "  Base Wood: " + base.storedWood +
+                "  Base Stone: " + base.storedStone,
+                10, uiCamera.viewportHeight - 20);
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        worldViewport.update(width, height, true);
+        uiViewport.update(width, height, true);
     }
 
     @Override
