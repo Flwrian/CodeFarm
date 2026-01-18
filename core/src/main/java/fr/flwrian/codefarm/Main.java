@@ -125,8 +125,8 @@ public class Main extends ApplicationAdapter {
 
     private void renderPlayer() {
         batch.draw(playerTex,
-                player.renderX * world.tileSize,
-                player.renderY * world.tileSize,
+                player.x * world.tileSize,
+                player.y * world.tileSize,
                 world.tileSize,
                 world.tileSize);
     }
