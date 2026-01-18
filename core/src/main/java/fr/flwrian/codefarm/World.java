@@ -9,10 +9,11 @@ public class World {
     public static final int GRASS = 1;
     public static final int TREE = 2;
     public static final int STONE = 3;
+    public static final int BASE = 4;
 
 
     int[][] tiles = new int[width][height];
-    // 0 = vide, 1 = herbe, 2 = arbre, 3 = pierre
+    // 0 = vide, 1 = herbe, 2 = arbre, 3 = pierre, 4 = base
 
     public World() {
         // Initialiser le monde avec des tiles d'herbe
@@ -24,6 +25,7 @@ public class World {
         // Ajouter quelques arbres et pierres pour l'exemple
         tiles[5][5] = 2; // arbre
         tiles[10][8] = 3; // pierre
+        tiles[0][0] = 4; // base
     }
 
     public int getTile(int x, int y) {
