@@ -75,6 +75,19 @@ public class Main extends ApplicationAdapter {
         batch.begin();
 
         // monde
+        renderWorld();
+
+        // joueur
+        renderPlayer();
+
+        // interface utilisateur
+        renderUI();
+
+        batch.end();
+    }
+
+    public void renderWorld() {
+        // monde
         for (int tx = 0; tx < world.width; tx++) {
             for (int ty = 0; ty < world.height; ty++) {
                 int tile = world.getTile(tx, ty);
@@ -82,8 +95,6 @@ public class Main extends ApplicationAdapter {
                 if (tile == World.TREE) tex = treeTex;
                 if (tile == World.STONE) tex = stoneTex;
                 if (tile == World.BASE) tex = baseTex;
-
-
                 batch.draw(tex,
                         tx * world.tileSize,
                         ty * world.tileSize,
@@ -91,25 +102,27 @@ public class Main extends ApplicationAdapter {
                         world.tileSize);
             }
         }
+    }
 
+    public void renderUI() {
+        // interface utilisateur
         font.draw(batch,
-    "Wood: " + player.wood + "  Stone: " + player.stone,
-    10, 470);
-
+                "Wood: " + player.wood + "  Stone: " + player.stone,
+                10, 470);
         font.draw(batch,
-    "Base - Wood: " + base.storedWood + "  Stone: " + base.storedStone,
-    10, 450);
+                "Base - Wood: " + base.storedWood + "  Stone: " + base.storedStone,
+                10, 450);
+    }
 
-
+    public void renderPlayer() {
         // joueur
         batch.draw(playerTex,
                 player.x * world.tileSize,
                 player.y * world.tileSize,
                 world.tileSize,
                 world.tileSize);
-
-        batch.end();
     }
+
 
     @Override
     public void dispose() {
