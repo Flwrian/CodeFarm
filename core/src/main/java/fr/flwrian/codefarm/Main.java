@@ -32,8 +32,8 @@ public class Main extends ApplicationAdapter {
     private GameContext ctx;
 
     private OrthographicCamera camera;
+    private OrthographicCamera uiCamera;
     private static final float CAMERA_LERP = 0.1f;
-
 
     private BitmapFont font;
 
@@ -45,21 +45,25 @@ public class Main extends ApplicationAdapter {
 
         world = new World();
         player = new Player(1, 1);
-        font = new BitmapFont();
         base = new Base(0, 0);
 
         grassTex = makeColorTexture(Color.PINK);
         treeTex = makeColorTexture(new Color(0.4f, 0.25f, 0.1f, 1));
         stoneTex = makeColorTexture(Color.GRAY);
 
+        font = new BitmapFont();
+
         ctx = new GameContext(player, world, base);
         controller = new KeyboardController();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 640, 480);
+        camera.position.set(320, 240, 0);
         camera.update();
 
-
+        uiCamera = new OrthographicCamera();
+        uiCamera.setToOrtho(false, 640, 480);
+        uiCamera.update();
     }
 
     private Texture makeColorTexture(Color c) {
@@ -78,30 +82,30 @@ public class Main extends ApplicationAdapter {
         player.update(dt);
         controller.update(ctx);
 
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-
+        // world cam
         float targetX = player.x * world.tileSize + world.tileSize / 2f;
         float targetY = player.y * world.tileSize + world.tileSize / 2f;
+
         camera.position.x += (targetX - camera.position.x) * CAMERA_LERP;
         camera.position.y += (targetY - camera.position.y) * CAMERA_LERP;
         camera.update();
-        batch.setProjectionMatrix(camera.combined);
 
+        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         batch.begin();
 
-        // monde
+        // world
+        batch.setProjectionMatrix(camera.combined);
         renderWorld();
-
-        // joueur
         renderPlayer();
 
-        // interface utilisateur
+        // UI
+        batch.setProjectionMatrix(uiCamera.combined);
         renderUI();
 
         batch.end();
     }
 
-    public void renderWorld() {
+    private void renderWorld() {
         for (int tx = 0; tx < world.width; tx++) {
             for (int ty = 0; ty < world.height; ty++) {
                 int tile = world.getTile(tx, ty);
@@ -109,6 +113,7 @@ public class Main extends ApplicationAdapter {
                 if (tile == World.TREE) tex = treeTex;
                 if (tile == World.STONE) tex = stoneTex;
                 if (tile == World.BASE) tex = baseTex;
+
                 batch.draw(tex,
                         tx * world.tileSize,
                         ty * world.tileSize,
@@ -118,15 +123,7 @@ public class Main extends ApplicationAdapter {
         }
     }
 
-    public void renderUI() {
-        font.draw(batch,
-                "Wood: " + player.wood + "  Stone: " + player.stone +
-                        "  Base Wood: " + base.storedWood + "  Base Stone: " + base.storedStone,
-                camera.position.x - 300,
-                camera.position.y + 220);
-    }
-
-    public void renderPlayer() {
+    private void renderPlayer() {
         batch.draw(playerTex,
                 player.renderX * world.tileSize,
                 player.renderY * world.tileSize,
@@ -134,6 +131,14 @@ public class Main extends ApplicationAdapter {
                 world.tileSize);
     }
 
+    private void renderUI() {
+        font.draw(batch,
+                "Wood: " + player.wood +
+                        "  Stone: " + player.stone +
+                        "  Base Wood: " + base.storedWood +
+                        "  Base Stone: " + base.storedStone,
+                10, 470);
+    }
 
     @Override
     public void dispose() {
@@ -142,7 +147,7 @@ public class Main extends ApplicationAdapter {
         grassTex.dispose();
         treeTex.dispose();
         stoneTex.dispose();
-        font.dispose();
         baseTex.dispose();
+        font.dispose();
     }
 }
