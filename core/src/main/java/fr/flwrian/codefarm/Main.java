@@ -10,6 +10,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import fr.flwrian.codefarm.controller.Controller;
+import fr.flwrian.codefarm.controller.GameContext;
+import fr.flwrian.codefarm.controller.KeyboardController;
+
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture playerTex;
@@ -22,6 +26,10 @@ public class Main extends ApplicationAdapter {
     private Texture treeTex;
     private Texture stoneTex;
     private Texture baseTex;
+
+    private Controller controller;
+    private GameContext ctx;
+
 
     private BitmapFont font;
 
@@ -39,6 +47,10 @@ public class Main extends ApplicationAdapter {
         grassTex = makeColorTexture(Color.PINK);
         treeTex = makeColorTexture(new Color(0.4f, 0.25f, 0.1f, 1));
         stoneTex = makeColorTexture(Color.GRAY);
+
+        ctx = new GameContext(player, world, base);
+        controller = new KeyboardController();
+
     }
 
     private Texture makeColorTexture(Color c) {
@@ -55,7 +67,8 @@ public class Main extends ApplicationAdapter {
         float dt = Gdx.graphics.getDeltaTime();
         player.update(dt);
 
-        handleInput();
+        player.update(dt);
+        controller.update(ctx);
 
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
@@ -96,25 +109,6 @@ public class Main extends ApplicationAdapter {
                 world.tileSize);
 
         batch.end();
-    }
-
-    private void handleInput() {
-        if (player.canAct()) {
-            if (Gdx.input.isKeyPressed(Input.Keys.W)) player.move(world, 0, 1);
-            else if (Gdx.input.isKeyPressed(Input.Keys.S)) player.move(world, 0, -1);
-            else if (Gdx.input.isKeyPressed(Input.Keys.A)) player.move(world, -1, 0);
-            else if (Gdx.input.isKeyPressed(Input.Keys.D)) player.move(world, 1, 0);
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                player.harvest(world);
-            }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                if (base.isPlayerOn(player)) {
-                    base.deposit(player);
-                }
-            }
-        }
     }
 
     @Override
