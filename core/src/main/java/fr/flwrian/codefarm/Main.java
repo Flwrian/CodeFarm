@@ -15,6 +15,7 @@ import fr.flwrian.codefarm.controller.GameContext;
 import fr.flwrian.codefarm.controller.KeyboardController;
 
 public class Main extends ApplicationAdapter {
+
     private SpriteBatch batch;
     private Texture playerTex;
 
@@ -31,6 +32,7 @@ public class Main extends ApplicationAdapter {
     private GameContext ctx;
 
     private OrthographicCamera camera;
+    private static final float CAMERA_LERP = 0.1f;
 
 
     private BitmapFont font;
@@ -80,9 +82,8 @@ public class Main extends ApplicationAdapter {
 
         float targetX = player.x * world.tileSize + world.tileSize / 2f;
         float targetY = player.y * world.tileSize + world.tileSize / 2f;
-        float lerp = 0.1f;
-        camera.position.x += (targetX - camera.position.x) * lerp;
-        camera.position.y += (targetY - camera.position.y) * lerp;
+        camera.position.x += (targetX - camera.position.x) * CAMERA_LERP;
+        camera.position.y += (targetY - camera.position.y) * CAMERA_LERP;
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
