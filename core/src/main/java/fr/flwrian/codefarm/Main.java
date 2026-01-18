@@ -102,7 +102,6 @@ public class Main extends ApplicationAdapter {
     }
 
     public void renderWorld() {
-        // monde
         for (int tx = 0; tx < world.width; tx++) {
             for (int ty = 0; ty < world.height; ty++) {
                 int tile = world.getTile(tx, ty);
@@ -120,7 +119,6 @@ public class Main extends ApplicationAdapter {
     }
 
     public void renderUI() {
-        // interface utilisateur
         font.draw(batch,
                 "Wood: " + player.wood + "  Stone: " + player.stone +
                         "  Base Wood: " + base.storedWood + "  Base Stone: " + base.storedStone,
@@ -129,10 +127,9 @@ public class Main extends ApplicationAdapter {
     }
 
     public void renderPlayer() {
-        // joueur
         batch.draw(playerTex,
-                player.x * world.tileSize,
-                player.y * world.tileSize,
+                player.renderX * world.tileSize,
+                player.renderY * world.tileSize,
                 world.tileSize,
                 world.tileSize);
     }

@@ -7,18 +7,25 @@ public class Player {
     public int wood = 0;
     public int stone = 0;
 
+    public float renderX, renderY;
+
     private float moveCooldown = 0;
     private float moveDelay = 0.15f;
+    private static final float PLAYER_LERP = 0.5f;
 
     public Player(int x, int y) {
         this.x = x;
         this.y = y;
+        this.renderX = x;
+        this.renderY = y;
     }
 
     public void update(float dt) {
         if (moveCooldown > 0) {
             moveCooldown -= dt;
         }
+        renderX += (x - renderX) * PLAYER_LERP;
+        renderY += (y - renderY) * PLAYER_LERP;
     }
 
     public boolean canAct() {
