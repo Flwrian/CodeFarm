@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.Gdx;
 import fr.flwrian.codefarm.Player;
-import fr.flwrian.codefarm.Base;
+import fr.flwrian.codefarm.environment.structures.Base;
 import fr.flwrian.codefarm.action.Action;
 
 public class HudRenderer {
@@ -28,4 +28,6 @@ public class HudRenderer {
         font.draw(batch, info,
             uiViewportWidth - 320, uiViewportHeight - 20);
     }
+
+
 }

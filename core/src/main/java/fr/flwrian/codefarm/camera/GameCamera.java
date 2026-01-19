@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import fr.flwrian.codefarm.Player;
-import fr.flwrian.codefarm.World;
+import fr.flwrian.codefarm.environment.World;
 
 public class GameCamera {
     

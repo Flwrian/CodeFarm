@@ -1,5 +1,7 @@
 package fr.flwrian.codefarm;
 
+import fr.flwrian.codefarm.environment.World;
+
 public class Player {
     public int x, y;
     public int dirX = 0, dirY = 1;

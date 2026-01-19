@@ -5,7 +5,7 @@ package fr.flwrian.codefarm.controller;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
-import fr.flwrian.codefarm.Base;
+import fr.flwrian.codefarm.environment.structures.Base;
 import fr.flwrian.codefarm.Player;
 
 import fr.flwrian.codefarm.action.Action;

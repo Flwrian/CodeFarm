@@ -1,6 +1,7 @@
 package fr.flwrian.codefarm.action;
 
 import fr.flwrian.codefarm.controller.GameContext;
+import fr.flwrian.codefarm.environment.structures.Base;
 
 public class DepositAction implements Action {
     private int remaining = 10;
@@ -9,7 +10,7 @@ public class DepositAction implements Action {
     public int remainingCost() { return remaining; }
 
     public boolean canStart(GameContext ctx) {
-        return ctx.base.isPlayerOn(ctx.player);
+        return ctx.base.containsPlayer(ctx.player);
     }
 
     public void start(GameContext ctx) {}

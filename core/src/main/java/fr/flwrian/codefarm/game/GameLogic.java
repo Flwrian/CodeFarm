@@ -1,20 +1,20 @@
 package fr.flwrian.codefarm.game;
 
-import fr.flwrian.codefarm.Base;
+import fr.flwrian.codefarm.environment.structures.Base;
 import fr.flwrian.codefarm.Player;
-import fr.flwrian.codefarm.World;
 import fr.flwrian.codefarm.action.Action;
 import fr.flwrian.codefarm.controller.Controller;
 import fr.flwrian.codefarm.controller.GameContext;
 import fr.flwrian.codefarm.controller.KeyboardController;
 import fr.flwrian.codefarm.controller.ScriptController;
+import fr.flwrian.codefarm.environment.World;
 
 public class GameLogic {
     
     private final Player player;
     private final World world;
-    private final Base base;
     private final GameContext ctx;
+    private final Base base;
     private Controller controller;
     
     private Action currentAction = null;
@@ -37,7 +37,7 @@ public class GameLogic {
         // Initialize game objects
         world = new World();
         player = new Player(1, 1);
-        base = new Base(0, 0);
+        base = world.getBase();
         ctx = new GameContext(player, world, base);
         
         // Initialize controller

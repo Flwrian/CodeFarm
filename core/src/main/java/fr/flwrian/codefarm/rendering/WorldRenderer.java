@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import fr.flwrian.codefarm.Player;
-import fr.flwrian.codefarm.World;
+import fr.flwrian.codefarm.environment.World;
 
 public class WorldRenderer {
     
