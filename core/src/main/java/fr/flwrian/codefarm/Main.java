@@ -186,7 +186,8 @@ public class Main extends ApplicationAdapter {
         debugLog("Current action: " + (currentAction == null ? "none" : currentAction.toString()));
 
         if (currentAction == null) {
-            // Demander une action au contrôleur
+            
+            // get an action from the controller
             currentAction = controller.update();
             if (currentAction != null && !currentAction.canStart(ctx)) {
                 debugLog("⚠️ Action " + currentAction.toString() + " cannot start (skipping)");
