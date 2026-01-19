@@ -39,12 +39,12 @@ public class Main extends ApplicationAdapter {
 
         // Initialize game
         gameLogic = new GameLogic(DEBUG);
-        
+
         // Initialize cameras
         worldCamera = new GameCamera(WORLD_VIEW_WIDTH, WORLD_VIEW_HEIGHT);
         worldCamera.setTarget(gameLogic.getPlayer(), gameLogic.getWorld());
         worldCamera.snapToTarget(); // Start at player position
-        
+
         uiCamera = new UICamera();
 
         // Initialize renderers
@@ -81,13 +81,13 @@ public class Main extends ApplicationAdapter {
     private void renderUI() {
         batch.setProjectionMatrix(uiCamera.getCamera().combined);
         batch.begin();
-        hudRenderer.render(batch, 
-            gameLogic.getPlayer(), 
-            gameLogic.getBase(),
-            gameLogic.getCurrentAction(),
-            gameLogic.getTickCount(),
-            uiCamera.getWidth(), 
-            uiCamera.getHeight());
+        hudRenderer.render(batch,
+                gameLogic.getPlayer(),
+                gameLogic.getBase(),
+                gameLogic.getCurrentAction(),
+                gameLogic.getTickCount(),
+                uiCamera.getWidth(),
+                uiCamera.getHeight());
         batch.end();
     }
 

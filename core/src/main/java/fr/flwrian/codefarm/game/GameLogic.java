@@ -10,17 +10,17 @@ import fr.flwrian.codefarm.controller.ScriptController;
 import fr.flwrian.codefarm.environment.World;
 
 public class GameLogic {
-    
+
     private final Player player;
     private final World world;
     private final GameContext ctx;
     private final Base base;
     private Controller controller;
-    
+
     private Action currentAction = null;
     private float tickTimer = 0f;
     private int tickCount = 0;
-    
+
     private final int ticksPerSecond;
     private final float tickInterval;
     private final boolean debug;
@@ -39,7 +39,7 @@ public class GameLogic {
         player = new Player(1, 1);
         base = world.getBase();
         ctx = new GameContext(player, world, base);
-        
+
         // Initialize controller
         controller = new ScriptController();
         controller = new KeyboardController();
@@ -56,19 +56,20 @@ public class GameLogic {
     }
 
     private void tick() {
-        if (debug) System.out.println("\n=== TICK " + tickCount + " ===");
+        if (debug)
+            System.out.println("\n=== TICK " + tickCount + " ===");
 
         // Try to get a new action if none is running
         if (currentAction == null) {
             currentAction = controller.update();
-            
+
             if (currentAction != null) {
                 if (!currentAction.canStart(ctx)) {
                     debugLog("⚠️ Action " + currentAction + " cannot start (skipping)");
                     currentAction = null;
                     return;
                 }
-                
+
                 debugLog("Starting: " + currentAction + " (cost: " + currentAction.totalCost() + ")");
                 currentAction.start(ctx);
             }
@@ -88,14 +89,32 @@ public class GameLogic {
     }
 
     private void debugLog(String msg) {
-        if (debug) System.out.println(msg);
+        if (debug)
+            System.out.println(msg);
     }
 
     // Getters
-    public Player getPlayer() { return player; }
-    public World getWorld() { return world; }
-    public Base getBase() { return base; }
-    public Action getCurrentAction() { return currentAction; }
-    public int getTickCount() { return tickCount; }
-    public int getTicksPerSecond() { return ticksPerSecond; }
+    public Player getPlayer() {
+        return player;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public Base getBase() {
+        return base;
+    }
+
+    public Action getCurrentAction() {
+        return currentAction;
+    }
+
+    public int getTickCount() {
+        return tickCount;
+    }
+
+    public int getTicksPerSecond() {
+        return ticksPerSecond;
+    }
 }
