@@ -1,9 +1,9 @@
 package fr.flwrian.codefarm;
 
 public class World {
-    int width = 200;
-    int height = 150;
-    int tileSize = 32;
+    public int width = 200;
+    public int height = 150;
+    public int tileSize = 32;
 
     public static final int EMPTY = 0;
     public static final int GRASS = 1;
