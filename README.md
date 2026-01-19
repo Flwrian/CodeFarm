@@ -31,3 +31,14 @@ Useful Gradle tasks and flags:
 
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
 For example, `core:clean` removes `build` folder only from the `core` project.
+
+
+---
+
+# CodeFarm
+
+CodeFarm is a little project/game made with libGDX. The first goal of this project is to experiment with how I could build a simple game using Java. I also wanted to implement a system to allow scripting some actions in the game using external script files.
+
+The game is about managing a little farm, gathering resources, building structures, and expanding the farm. The player can control a character to perform various actions like moving, gathering resources, and building.
+
+This is not a very serious project at the moment, just a playground for me to learn and experiment with game development concepts and libGDX features but who knows, it might evolve into a cool little side project.
