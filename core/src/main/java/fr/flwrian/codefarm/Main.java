@@ -1,7 +1,6 @@
 package fr.flwrian.codefarm;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+// ...existing code...
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -19,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import fr.flwrian.codefarm.action.Action;
 import fr.flwrian.codefarm.controller.Controller;
 import fr.flwrian.codefarm.controller.GameContext;
+import fr.flwrian.codefarm.controller.KeyboardController;
 import fr.flwrian.codefarm.controller.ScriptController;
 
 public class Main extends ApplicationAdapter {
@@ -43,17 +43,12 @@ public class Main extends ApplicationAdapter {
     private static final float WORLD_VIEW_WIDTH = 640;
     private static final float WORLD_VIEW_HEIGHT = 480;
 
-    private Queue<Action> actionQueue = new ArrayDeque<>();
     private float tickTimer = 0f;
-    private float tickInterval = 0.5f; // 5 ticks/sec
-    private int tickBudget = 10;
+    private float tickInterval = 0.02f; // 5 ticks/sec
     private Action currentAction = null;
     private int ntick = 0;
 
-    // Configuration debug
     private static final boolean DEBUG = true;
-    private static final int MAX_QUEUE_SIZE = 1000;
-    private static final int MAX_FAILED_STARTS = 5; // Éviter les boucles infinies
 
     @Override
     public void create() {
@@ -70,7 +65,8 @@ public class Main extends ApplicationAdapter {
         base = new Base(0, 0);
 
         ctx = new GameContext(player, world, base);
-        controller = new ScriptController(ctx, actionQueue);
+        controller = new KeyboardController();
+        // controller = new ScriptController();
 
         font = new BitmapFont();
 
@@ -99,7 +95,7 @@ public class Main extends ApplicationAdapter {
 
         while (tickTimer >= tickInterval) {
             tickTimer -= tickInterval;
-            controller.update(ctx);
+            controller.update();
             debugLog("--- TICK " + ntick + " ---");
             runTick();
             ntick++;
@@ -181,69 +177,29 @@ public class Main extends ApplicationAdapter {
                 "Wood: " + player.wood +
                 "  Stone: " + player.stone +
                 "  Base Wood: " + base.storedWood +
-                "  Base Stone: " + base.storedStone +
-                "  Queue: " + actionQueue.size(),
+                "  Base Stone: " + base.storedStone,
                 10, uiCamera.viewportHeight - 20);
     }
 
     private void runTick() {
         debugLog("=== TICK START ===");
-        debugLog("Queue size: " + actionQueue.size() + 
-                 " | Current action: " + (currentAction == null ? "none" : currentAction.toString()));
+        debugLog("Current action: " + (currentAction == null ? "none" : currentAction.toString()));
 
-        // Sécurité : vérifier la taille de la queue
-        if (actionQueue.size() > MAX_QUEUE_SIZE) {
-            System.err.println("⚠️ ERROR: Action queue overflow (" + actionQueue.size() + " actions)!");
-            System.err.println("Clearing queue to prevent crash. Check your Lua script for infinite loops.");
-            actionQueue.clear();
-            currentAction = null;
-            return;
+        if (currentAction == null) {
+            // Demander une action au contrôleur
+            currentAction = controller.update();
+            if (currentAction != null && !currentAction.canStart(ctx)) {
+                debugLog("⚠️ Action " + currentAction.toString() + " cannot start (skipping)");
+                currentAction = null;
+            } else if (currentAction != null) {
+                debugLog("Starting: " + currentAction.toString() + " (cost: " + currentAction.totalCost() + ")");
+                currentAction.start(ctx);
+            }
         }
 
-        int ticksUsed = 0;
-        int failedStarts = 0;
-
-        while (ticksUsed < tickBudget) {
-            // Récupérer la prochaine action si nécessaire
-            if (currentAction == null) {
-                currentAction = actionQueue.poll();
-                if (currentAction == null) {
-                    debugLog("No more actions in queue. Used " + ticksUsed + "/" + tickBudget + " ticks.");
-                    break;
-                }
-
-                // Vérifier si l'action peut démarrer
-                if (!currentAction.canStart(ctx)) {
-                    debugLog("⚠️ Action " + currentAction.toString() + " cannot start (skipping)");
-                    currentAction = null;
-                    failedStarts++;
-                    
-                    // Protection contre les boucles infinies
-                    if (failedStarts >= MAX_FAILED_STARTS) {
-                        System.err.println("⚠️ Too many failed action starts. Clearing queue.");
-                        actionQueue.clear();
-                        break;
-                    }
-                    
-                    ticksUsed++; // Consommer un tick pour éviter boucle infinie
-                    continue;
-                }
-
-                // Démarrer l'action
-                debugLog("Starting: " + currentAction.toString() + 
-                        " (cost: " + currentAction.totalCost() + ")");
-                currentAction.start(ctx);
-                failedStarts = 0; // Reset counter on successful start
-            }
-
-            // Appliquer un tick à l'action courante
+        if (currentAction != null) {
             currentAction.applyTick(ctx);
-            ticksUsed++;
-
-            debugLog("Applied tick to " + currentAction.toString() + 
-                    " (remaining: " + currentAction.remainingCost() + ")");
-
-            // Terminer l'action si finie
+            debugLog("Applied tick to " + currentAction.toString() + " (remaining: " + currentAction.remainingCost() + ")");
             if (currentAction.isFinished()) {
                 debugLog("Finished: " + currentAction.toString());
                 currentAction.finish(ctx);
@@ -251,7 +207,7 @@ public class Main extends ApplicationAdapter {
             }
         }
 
-        debugLog("=== TICK END === Used " + ticksUsed + "/" + tickBudget + " ticks");
+        debugLog("=== TICK END ===");
     }
 
     private void debugLog(String msg) {

@@ -5,15 +5,15 @@ import fr.flwrian.codefarm.controller.GameContext;
 
 public class MoveAction implements Action {
     private int dx, dy;
-    private boolean done = false;
+    private int remaining = 5;
 
     public MoveAction(int dx, int dy) {
         this.dx = dx;
         this.dy = dy;
     }
 
-    public int totalCost() { return 1; }
-    public int remainingCost() { return done ? 0 : 1; }
+    public int totalCost() { return 5; }
+    public int remainingCost() { return remaining; }
 
     public boolean canStart(GameContext ctx) {
         return ctx.player.canMove(ctx.world, dx, dy);
@@ -22,15 +22,17 @@ public class MoveAction implements Action {
     public void start(GameContext ctx) {}
 
     public void applyTick(GameContext ctx) {
-        ctx.player.move(ctx.world, dx, dy);
-        done = true;
+        remaining--;
     }
 
     public boolean isFinished() {
-        return done;
+        return remaining <= 0;
     }
 
-    public void finish(GameContext ctx) {}
+    public void finish(GameContext ctx) {
+        ctx.player.move(ctx.world, dx, dy);
+    }
+
 
     @Override
     public String toString() {

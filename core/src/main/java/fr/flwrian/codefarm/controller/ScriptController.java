@@ -1,10 +1,8 @@
 package fr.flwrian.codefarm.controller;
 
-import java.util.Queue;
-import java.util.function.Supplier;
+
 
 import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaThread;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.ZeroArgFunction;
@@ -19,19 +17,16 @@ import fr.flwrian.codefarm.action.MoveAction;
 
 public class ScriptController implements Controller {
     private Globals globals;
-    private Queue<Action> actionQueue;
-    private LuaThread scriptThread;
-    private LuaValue coroutine;
 
-    public ScriptController(GameContext ctx, Queue<Action> actionQueue) {
-        this.actionQueue = actionQueue;
+    private LuaValue coroutine;
+    private Action nextAction = null;
+
+    public ScriptController() {
         globals = JsePlatform.standardGlobals();
         registerApi();
-        
         // load and execute the script to define functions
         String script = Gdx.files.internal("scripts/player.lua").readString();
         globals.load(script, "player.lua").call();
-        
         // create co routine for update function
         LuaValue updateFunc = globals.get("update");
         if (!updateFunc.isnil()) {
@@ -46,10 +41,10 @@ public class ScriptController implements Controller {
             public LuaValue call(LuaValue arg) {
                 String dir = arg.checkjstring();
                 switch (dir) {
-                    case "up":    actionQueue.add(new MoveAction(0, 1)); break;
-                    case "down":  actionQueue.add(new MoveAction(0, -1)); break;
-                    case "left":  actionQueue.add(new MoveAction(-1, 0)); break;
-                    case "right": actionQueue.add(new MoveAction(1, 0)); break;
+                    case "up":    nextAction = new MoveAction(0, 1); break;
+                    case "down":  nextAction = new MoveAction(0, -1); break;
+                    case "left":  nextAction = new MoveAction(-1, 0); break;
+                    case "right": nextAction = new MoveAction(1, 0); break;
                 }
                 // yield to return control to Java
                 return globals.get("coroutine").get("yield").call();
@@ -59,7 +54,7 @@ public class ScriptController implements Controller {
         globals.set("harvest", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
-                actionQueue.add(new HarvestAction());
+                nextAction = new HarvestAction();
                 return globals.get("coroutine").get("yield").call();
             }
         });
@@ -67,38 +62,25 @@ public class ScriptController implements Controller {
         globals.set("deposit", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
-                actionQueue.add(new DepositAction());
+                nextAction = new DepositAction();
                 return globals.get("coroutine").get("yield").call();
             }
         });
     }
 
     @Override
-    public void update(GameContext ctx) {
-        if (coroutine == null) return;
-        
-        // resume the coroutine to fill the action queue
-        int maxResumes = 20;
-        int resumes = 0;
-        
-        while (actionQueue.size() < 50 && resumes < maxResumes) {
-            LuaValue status = globals.get("coroutine").get("status").call(coroutine);
-            String statusStr = status.tojstring();
-            
-            if (statusStr.equals("suspended")) {
-                LuaValue result = globals.get("coroutine").get("resume").call(coroutine);
-                resumes++;
-                
-                if (!result.arg1().toboolean()) {
-                    System.err.println("Erreur Lua: " + result.arg(2).tojstring());
-                    break;
-                }
-            } else if (statusStr.equals("dead")) {
-                System.out.println("Script terminé");
-                break;
-            } else {
-                break;
+    public Action update() {
+        if (coroutine == null) return null;
+        nextAction = null;
+        LuaValue status = globals.get("coroutine").get("status").call(coroutine);
+        if (status.tojstring().equals("suspended")) {
+            LuaValue result = globals.get("coroutine").get("resume").call(coroutine);
+            if (!result.arg1().toboolean()) {
+                System.err.println("Erreur Lua: " + result.arg(2).tojstring());
             }
+        } else if (status.tojstring().equals("dead")) {
+            System.out.println("Script terminé");
         }
+        return nextAction;
     }
 }
