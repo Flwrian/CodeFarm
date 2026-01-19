@@ -44,7 +44,8 @@ public class Main extends ApplicationAdapter {
     private static final float WORLD_VIEW_HEIGHT = 480;
 
     private float tickTimer = 0f;
-    private float tickInterval = 0.02f; // 5 ticks/sec
+    private int tickPerSecond = 50;
+    private float tickInterval = 1f / tickPerSecond;
     private Action currentAction = null;
     private int ntick = 0;
 
@@ -173,12 +174,19 @@ public class Main extends ApplicationAdapter {
     }
 
     private void renderUI() {
-        font.draw(batch,
-                "Wood: " + player.wood +
-                "  Stone: " + player.stone +
-                "  Base Wood: " + base.storedWood +
-                "  Base Stone: " + base.storedStone,
-                10, uiCamera.viewportHeight - 20);
+    font.draw(batch,
+        "Wood: " + player.wood +
+        "  Stone: " + player.stone +
+        "  Base Wood: " + base.storedWood +
+        "  Base Stone: " + base.storedStone,
+        10, uiCamera.viewportHeight - 20);
+
+    // Affichage des FPS et infos utiles en haut à droite
+    String info = "FPS: " + Gdx.graphics.getFramesPerSecond()
+        + " | Ticks: " + ntick
+        + " | Action: " + (currentAction == null ? "none" : currentAction.toString());
+    font.draw(batch, info,
+        uiCamera.viewportWidth - 320, uiCamera.viewportHeight - 20);
     }
 
     private void runTick() {
