@@ -1,39 +1,45 @@
 package fr.flwrian.codefarm.controller;
 
-import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.luaj.vm2.*;
-import org.luaj.vm2.lib.*;
-import org.luaj.vm2.lib.jse.*;
+import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaThread;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.ZeroArgFunction;
+import org.luaj.vm2.lib.jse.JsePlatform;
 
 import com.badlogic.gdx.Gdx;
 
-import fr.flwrian.codefarm.*;
 import fr.flwrian.codefarm.action.Action;
 import fr.flwrian.codefarm.action.DepositAction;
 import fr.flwrian.codefarm.action.HarvestAction;
 import fr.flwrian.codefarm.action.MoveAction;
 
 public class ScriptController implements Controller {
-
     private Globals globals;
-    private GameContext ctx;
-
     private Queue<Action> actionQueue;
-
+    private LuaThread scriptThread;
+    private LuaValue coroutine;
 
     public ScriptController(GameContext ctx, Queue<Action> actionQueue) {
-        this.ctx = ctx;
-        this.actionQueue = actionQueue;
-        globals = JsePlatform.standardGlobals();
-        registerApi();
-        String script = Gdx.files.internal("scripts/player.lua").readString();
-        globals.load(script, "player.lua").call();
-
+    this.actionQueue = actionQueue;
+    globals = JsePlatform.standardGlobals();
+    registerApi();
+    
+    // load and execute the script to define functions
+    String script = Gdx.files.internal("scripts/player.lua").readString();
+    globals.load(script, "player.lua").call();
+    
+    // create co routine for update function
+    LuaValue updateFunc = globals.get("update");
+    if (!updateFunc.isnil()) {
+        coroutine = globals.get("coroutine").get("create").call(updateFunc);
     }
+}
 
     private void registerApi() {
+        // yield after each action to return control to Java
         globals.set("move", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
@@ -44,7 +50,8 @@ public class ScriptController implements Controller {
                     case "left":  actionQueue.add(new MoveAction(-1, 0)); break;
                     case "right": actionQueue.add(new MoveAction(1, 0)); break;
                 }
-                return LuaValue.NIL;
+                // yield to return control to Java
+                return globals.get("coroutine").get("yield").call();
             }
         });
 
@@ -52,7 +59,7 @@ public class ScriptController implements Controller {
             @Override
             public LuaValue call() {
                 actionQueue.add(new HarvestAction());
-                return LuaValue.NIL;
+                return globals.get("coroutine").get("yield").call();
             }
         });
 
@@ -60,19 +67,29 @@ public class ScriptController implements Controller {
             @Override
             public LuaValue call() {
                 actionQueue.add(new DepositAction());
-                return LuaValue.NIL;
+                return globals.get("coroutine").get("yield").call();
             }
         });
-
-
-
     }
 
     @Override
     public void update(GameContext ctx) {
-        LuaValue updateFunc = globals.get("update");
-        if (!updateFunc.isnil()) {
-            updateFunc.call();
+        if (coroutine == null) return;
+        
+        // Resume the coroutine if there is room in the action queue
+        if (actionQueue.size() < 5) {
+            LuaValue status = globals.get("coroutine").get("status").call(coroutine);
+            String statusStr = status.tojstring();
+            
+            if (statusStr.equals("suspended")) {
+                LuaValue result = globals.get("coroutine").get("resume").call(coroutine);
+                
+                if (!result.arg1().toboolean()) {
+                    System.err.println("error: " + result.arg(2).tojstring());
+                }
+            } else if (statusStr.equals("dead")) {
+                System.out.println("script finished");
+            }
         }
     }
 }

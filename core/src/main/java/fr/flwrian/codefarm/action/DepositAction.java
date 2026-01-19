@@ -3,16 +3,26 @@ package fr.flwrian.codefarm.action;
 import fr.flwrian.codefarm.controller.GameContext;
 
 public class DepositAction implements Action {
-    @Override
-    public int cost() { return 2; }
+    private int remaining = 10;
 
-    @Override
-    public boolean canExecute(GameContext ctx) {
-        return ctx.player.canAct() && ctx.base.isPlayerOn(ctx.player);
+    public int totalCost() { return 10; }
+    public int remainingCost() { return remaining; }
+
+    public boolean canStart(GameContext ctx) {
+        return ctx.base.isPlayerOn(ctx.player);
     }
 
-    @Override
-    public void execute(GameContext ctx) {
+    public void start(GameContext ctx) {}
+
+    public void applyTick(GameContext ctx) {
+        remaining--;
+    }
+
+    public boolean isFinished() {
+        return remaining <= 0;
+    }
+
+    public void finish(GameContext ctx) {
         ctx.base.deposit(ctx.player);
     }
 }

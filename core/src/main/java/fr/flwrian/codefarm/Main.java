@@ -46,7 +46,10 @@ public class Main extends ApplicationAdapter {
     private static final float WORLD_VIEW_HEIGHT = 480;
 
     private Queue<Action> actionQueue = new ArrayDeque<>();
+    private float tickTimer = 0f;
+    private float tickInterval = 0.2f; // 5 ticks/sec
     private int tickBudget = 10;
+    private Action currentAction = null;
 
 
     @Override
@@ -90,10 +93,17 @@ public class Main extends ApplicationAdapter {
     @Override
     public void render() {
         float dt = Gdx.graphics.getDeltaTime();
+        tickTimer += dt;
 
         player.update(dt);
-        controller.update(ctx);
-        consumeActions();
+
+        while (tickTimer >= tickInterval) {
+            System.out.println("tick");
+            tickTimer -= tickInterval;
+            controller.update(ctx);
+            runTick();
+        }
+
         updateCamera(dt);
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
@@ -174,20 +184,47 @@ public class Main extends ApplicationAdapter {
                 10, uiCamera.viewportHeight - 20);
     }
 
-    private void consumeActions() {
-        int ticks = tickBudget;
+    private void runTick() {
+        System.out.println("runTick() - queue size = " + actionQueue.size() +
+                       " currentAction = " + (currentAction == null ? "null" : currentAction.getClass().getSimpleName()));
 
-        while (ticks > 0 && !actionQueue.isEmpty()) {
-            Action a = actionQueue.peek();
-            if (a.cost() <= ticks && a.canExecute(ctx)) {
-                a.execute(ctx);
-                ticks -= a.cost();
-                actionQueue.poll();
-            } else {
-                break;
-            }
+    int ticks = tickBudget;
+    System.out.println("Budget for this tick = " + ticks);
+
+        while (ticks > 0) {
+    if (currentAction == null) {
+        currentAction = actionQueue.poll();
+        if (currentAction == null) {
+            System.out.println("No more actions in queue.");
+            return;
         }
+
+        if (!currentAction.canStart(ctx)) {
+            System.out.println("Action " + currentAction.getClass().getSimpleName() + " cannot start.");
+            currentAction = null;
+            continue;
+        }
+
+        System.out.println("Starting action: " + currentAction.getClass().getSimpleName() +
+                           " totalCost=" + currentAction.totalCost());
+        currentAction.start(ctx);
     }
+
+    currentAction.applyTick(ctx);
+    ticks--;
+
+    System.out.println("Applied 1 tick to " + currentAction.getClass().getSimpleName() +
+                       " remaining=" + currentAction.remainingCost());
+
+    if (currentAction.isFinished()) {
+        System.out.println("Finished action: " + currentAction.getClass().getSimpleName());
+        currentAction.finish(ctx);
+        currentAction = null;
+    }
+}
+
+    }
+
 
 
     @Override

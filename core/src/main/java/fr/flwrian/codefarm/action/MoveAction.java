@@ -5,22 +5,31 @@ import fr.flwrian.codefarm.controller.GameContext;
 
 public class MoveAction implements Action {
     private int dx, dy;
+    private boolean done = false;
 
     public MoveAction(int dx, int dy) {
         this.dx = dx;
         this.dy = dy;
     }
 
-    @Override
-    public int cost() { return 1; }
+    public int totalCost() { return 1; }
+    public int remainingCost() { return done ? 0 : 1; }
 
-    @Override
-    public boolean canExecute(GameContext ctx) {
-        return ctx.player.canAct() && ctx.player.canMove(ctx.world, dx, dy);
+    public boolean canStart(GameContext ctx) {
+        return ctx.player.canMove(ctx.world, dx, dy);
     }
 
-    @Override
-    public void execute(GameContext ctx) {
+    public void start(GameContext ctx) {}
+
+    public void applyTick(GameContext ctx) {
         ctx.player.move(ctx.world, dx, dy);
+        done = true;
     }
+
+    public boolean isFinished() {
+        return done;
+    }
+
+    public void finish(GameContext ctx) {}
 }
+
