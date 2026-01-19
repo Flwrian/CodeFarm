@@ -1,8 +1,9 @@
 function update()
-    print("Script Lua démarre!")
-    for i = 1, 5 do
-        move("right")
-        harvest()
-    end
-    print("Script terminé")
+  while true do
+    move("right")
+    move("up")
+    move("left")
+    move("down")
+    harvest()
+  end
 end

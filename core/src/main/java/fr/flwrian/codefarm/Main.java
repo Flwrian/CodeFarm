@@ -19,13 +19,11 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import fr.flwrian.codefarm.action.Action;
 import fr.flwrian.codefarm.controller.Controller;
 import fr.flwrian.codefarm.controller.GameContext;
-import fr.flwrian.codefarm.controller.KeyboardController;
 import fr.flwrian.codefarm.controller.ScriptController;
 
 public class Main extends ApplicationAdapter {
 
     private SpriteBatch batch;
-
     private Texture playerTex, grassTex, treeTex, stoneTex, baseTex;
 
     private Player player;
@@ -47,10 +45,15 @@ public class Main extends ApplicationAdapter {
 
     private Queue<Action> actionQueue = new ArrayDeque<>();
     private float tickTimer = 0f;
-    private float tickInterval = 0.2f; // 5 ticks/sec
+    private float tickInterval = 0.5f; // 5 ticks/sec
     private int tickBudget = 10;
     private Action currentAction = null;
+    private int ntick = 0;
 
+    // Configuration debug
+    private static final boolean DEBUG = true;
+    private static final int MAX_QUEUE_SIZE = 1000;
+    private static final int MAX_FAILED_STARTS = 5; // Éviter les boucles infinies
 
     @Override
     public void create() {
@@ -67,7 +70,6 @@ public class Main extends ApplicationAdapter {
         base = new Base(0, 0);
 
         ctx = new GameContext(player, world, base);
-        // controller = new KeyboardController();
         controller = new ScriptController(ctx, actionQueue);
 
         font = new BitmapFont();
@@ -95,13 +97,12 @@ public class Main extends ApplicationAdapter {
         float dt = Gdx.graphics.getDeltaTime();
         tickTimer += dt;
 
-        player.update(dt);
-
         while (tickTimer >= tickInterval) {
-            System.out.println("tick");
             tickTimer -= tickInterval;
             controller.update(ctx);
+            debugLog("--- TICK " + ntick + " ---");
             runTick();
+            ntick++;
         }
 
         updateCamera(dt);
@@ -180,52 +181,84 @@ public class Main extends ApplicationAdapter {
                 "Wood: " + player.wood +
                 "  Stone: " + player.stone +
                 "  Base Wood: " + base.storedWood +
-                "  Base Stone: " + base.storedStone,
+                "  Base Stone: " + base.storedStone +
+                "  Queue: " + actionQueue.size(),
                 10, uiCamera.viewportHeight - 20);
     }
 
     private void runTick() {
-        System.out.println("runTick() - queue size = " + actionQueue.size() +
-                       " currentAction = " + (currentAction == null ? "null" : currentAction.getClass().getSimpleName()));
+        debugLog("=== TICK START ===");
+        debugLog("Queue size: " + actionQueue.size() + 
+                 " | Current action: " + (currentAction == null ? "none" : currentAction.toString()));
 
-    int ticks = tickBudget;
-    System.out.println("Budget for this tick = " + ticks);
-
-        while (ticks > 0) {
-    if (currentAction == null) {
-        currentAction = actionQueue.poll();
-        if (currentAction == null) {
-            System.out.println("No more actions in queue.");
+        // Sécurité : vérifier la taille de la queue
+        if (actionQueue.size() > MAX_QUEUE_SIZE) {
+            System.err.println("⚠️ ERROR: Action queue overflow (" + actionQueue.size() + " actions)!");
+            System.err.println("Clearing queue to prevent crash. Check your Lua script for infinite loops.");
+            actionQueue.clear();
+            currentAction = null;
             return;
         }
 
-        if (!currentAction.canStart(ctx)) {
-            System.out.println("Action " + currentAction.getClass().getSimpleName() + " cannot start.");
-            currentAction = null;
-            continue;
+        int ticksUsed = 0;
+        int failedStarts = 0;
+
+        while (ticksUsed < tickBudget) {
+            // Récupérer la prochaine action si nécessaire
+            if (currentAction == null) {
+                currentAction = actionQueue.poll();
+                if (currentAction == null) {
+                    debugLog("No more actions in queue. Used " + ticksUsed + "/" + tickBudget + " ticks.");
+                    break;
+                }
+
+                // Vérifier si l'action peut démarrer
+                if (!currentAction.canStart(ctx)) {
+                    debugLog("⚠️ Action " + currentAction.toString() + " cannot start (skipping)");
+                    currentAction = null;
+                    failedStarts++;
+                    
+                    // Protection contre les boucles infinies
+                    if (failedStarts >= MAX_FAILED_STARTS) {
+                        System.err.println("⚠️ Too many failed action starts. Clearing queue.");
+                        actionQueue.clear();
+                        break;
+                    }
+                    
+                    ticksUsed++; // Consommer un tick pour éviter boucle infinie
+                    continue;
+                }
+
+                // Démarrer l'action
+                debugLog("Starting: " + currentAction.toString() + 
+                        " (cost: " + currentAction.totalCost() + ")");
+                currentAction.start(ctx);
+                failedStarts = 0; // Reset counter on successful start
+            }
+
+            // Appliquer un tick à l'action courante
+            currentAction.applyTick(ctx);
+            ticksUsed++;
+
+            debugLog("Applied tick to " + currentAction.toString() + 
+                    " (remaining: " + currentAction.remainingCost() + ")");
+
+            // Terminer l'action si finie
+            if (currentAction.isFinished()) {
+                debugLog("Finished: " + currentAction.toString());
+                currentAction.finish(ctx);
+                currentAction = null;
+            }
         }
 
-        System.out.println("Starting action: " + currentAction.getClass().getSimpleName() +
-                           " totalCost=" + currentAction.totalCost());
-        currentAction.start(ctx);
+        debugLog("=== TICK END === Used " + ticksUsed + "/" + tickBudget + " ticks");
     }
 
-    currentAction.applyTick(ctx);
-    ticks--;
-
-    System.out.println("Applied 1 tick to " + currentAction.getClass().getSimpleName() +
-                       " remaining=" + currentAction.remainingCost());
-
-    if (currentAction.isFinished()) {
-        System.out.println("Finished action: " + currentAction.getClass().getSimpleName());
-        currentAction.finish(ctx);
-        currentAction = null;
+    private void debugLog(String msg) {
+        if (DEBUG) {
+            System.out.println(msg);
+        }
     }
-}
-
-    }
-
-
 
     @Override
     public void resize(int width, int height) {

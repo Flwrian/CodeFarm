@@ -32,4 +32,9 @@ public class WaitAction implements Action {
 
     @Override
     public void finish(GameContext ctx) {}
+
+    @Override
+    public String toString() {
+        return "WaitAction(" + remaining + " ticks left)";
+    }
 }

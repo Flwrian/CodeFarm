@@ -14,8 +14,6 @@ public class KeyboardController implements Controller {
         World w = ctx.world;
         Base b = ctx.base;
 
-        if (!p.canAct()) return;
-
         if (Gdx.input.isKeyPressed(Input.Keys.W)) p.move(w, 0, 1);
         else if (Gdx.input.isKeyPressed(Input.Keys.S)) p.move(w, 0, -1);
         else if (Gdx.input.isKeyPressed(Input.Keys.A)) p.move(w, -1, 0);

@@ -31,5 +31,16 @@ public class MoveAction implements Action {
     }
 
     public void finish(GameContext ctx) {}
+
+    @Override
+    public String toString() {
+        String direction;
+        if (dx == 1 && dy == 0) direction = "right";
+        else if (dx == -1 && dy == 0) direction = "left";
+        else if (dx == 0 && dy == 1) direction = "up";
+        else if (dx == 0 && dy == -1) direction = "down";
+        else direction = "unknown";
+        return "MoveAction(" + direction + ")";
+    }
 }
 

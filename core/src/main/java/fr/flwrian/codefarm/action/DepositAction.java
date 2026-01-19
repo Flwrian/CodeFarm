@@ -25,4 +25,9 @@ public class DepositAction implements Action {
     public void finish(GameContext ctx) {
         ctx.base.deposit(ctx.player);
     }
+
+    @Override
+    public String toString() {
+        return "DepositAction";
+    }
 }

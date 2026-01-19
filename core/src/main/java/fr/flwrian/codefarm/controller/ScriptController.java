@@ -1,6 +1,7 @@
 package fr.flwrian.codefarm.controller;
 
 import java.util.Queue;
+import java.util.function.Supplier;
 
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaThread;
@@ -23,20 +24,20 @@ public class ScriptController implements Controller {
     private LuaValue coroutine;
 
     public ScriptController(GameContext ctx, Queue<Action> actionQueue) {
-    this.actionQueue = actionQueue;
-    globals = JsePlatform.standardGlobals();
-    registerApi();
-    
-    // load and execute the script to define functions
-    String script = Gdx.files.internal("scripts/player.lua").readString();
-    globals.load(script, "player.lua").call();
-    
-    // create co routine for update function
-    LuaValue updateFunc = globals.get("update");
-    if (!updateFunc.isnil()) {
-        coroutine = globals.get("coroutine").get("create").call(updateFunc);
+        this.actionQueue = actionQueue;
+        globals = JsePlatform.standardGlobals();
+        registerApi();
+        
+        // load and execute the script to define functions
+        String script = Gdx.files.internal("scripts/player.lua").readString();
+        globals.load(script, "player.lua").call();
+        
+        // create co routine for update function
+        LuaValue updateFunc = globals.get("update");
+        if (!updateFunc.isnil()) {
+            coroutine = globals.get("coroutine").get("create").call(updateFunc);
+        }
     }
-}
 
     private void registerApi() {
         // yield after each action to return control to Java
@@ -76,19 +77,27 @@ public class ScriptController implements Controller {
     public void update(GameContext ctx) {
         if (coroutine == null) return;
         
-        // Resume the coroutine if there is room in the action queue
-        if (actionQueue.size() < 5) {
+        // resume the coroutine to fill the action queue
+        int maxResumes = 20;
+        int resumes = 0;
+        
+        while (actionQueue.size() < 50 && resumes < maxResumes) {
             LuaValue status = globals.get("coroutine").get("status").call(coroutine);
             String statusStr = status.tojstring();
             
             if (statusStr.equals("suspended")) {
                 LuaValue result = globals.get("coroutine").get("resume").call(coroutine);
+                resumes++;
                 
                 if (!result.arg1().toboolean()) {
-                    System.err.println("error: " + result.arg(2).tojstring());
+                    System.err.println("Erreur Lua: " + result.arg(2).tojstring());
+                    break;
                 }
             } else if (statusStr.equals("dead")) {
-                System.out.println("script finished");
+                System.out.println("Script terminé");
+                break;
+            } else {
+                break;
             }
         }
     }

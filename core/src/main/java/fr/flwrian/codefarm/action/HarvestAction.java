@@ -25,6 +25,11 @@ public class HarvestAction implements Action {
     public void finish(GameContext ctx) {
         ctx.player.harvest(ctx.world);
     }
+
+    @Override
+    public String toString() {
+        return "HarvestAction";
+    }
 }
 
 
