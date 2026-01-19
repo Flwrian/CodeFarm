@@ -1,5 +1,8 @@
 package fr.flwrian.codefarm;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -13,9 +16,11 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import fr.flwrian.codefarm.action.Action;
 import fr.flwrian.codefarm.controller.Controller;
 import fr.flwrian.codefarm.controller.GameContext;
 import fr.flwrian.codefarm.controller.KeyboardController;
+import fr.flwrian.codefarm.controller.ScriptController;
 
 public class Main extends ApplicationAdapter {
 
@@ -40,6 +45,10 @@ public class Main extends ApplicationAdapter {
     private static final float WORLD_VIEW_WIDTH = 640;
     private static final float WORLD_VIEW_HEIGHT = 480;
 
+    private Queue<Action> actionQueue = new ArrayDeque<>();
+    private int tickBudget = 10;
+
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -55,7 +64,8 @@ public class Main extends ApplicationAdapter {
         base = new Base(0, 0);
 
         ctx = new GameContext(player, world, base);
-        controller = new KeyboardController();
+        // controller = new KeyboardController();
+        controller = new ScriptController(ctx, actionQueue);
 
         font = new BitmapFont();
 
@@ -83,6 +93,7 @@ public class Main extends ApplicationAdapter {
 
         player.update(dt);
         controller.update(ctx);
+        consumeActions();
         updateCamera(dt);
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
@@ -162,6 +173,22 @@ public class Main extends ApplicationAdapter {
                 "  Base Stone: " + base.storedStone,
                 10, uiCamera.viewportHeight - 20);
     }
+
+    private void consumeActions() {
+        int ticks = tickBudget;
+
+        while (ticks > 0 && !actionQueue.isEmpty()) {
+            Action a = actionQueue.peek();
+            if (a.cost() <= ticks && a.canExecute(ctx)) {
+                a.execute(ctx);
+                ticks -= a.cost();
+                actionQueue.poll();
+            } else {
+                break;
+            }
+        }
+    }
+
 
     @Override
     public void resize(int width, int height) {
