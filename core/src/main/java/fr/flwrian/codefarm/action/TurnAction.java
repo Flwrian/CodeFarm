@@ -1,14 +1,18 @@
 package fr.flwrian.codefarm.action;
 
-import fr.flwrian.codefarm.Direction;
 import fr.flwrian.codefarm.game.GameContext;
 
-public class MoveAction implements Action {
-    private final Direction direction;
+public class TurnAction implements Action {
+    
+    public enum TurnType {
+        LEFT, RIGHT, AROUND
+    }
+    
+    private final TurnType turnType;
     private int remaining = 10;
 
-    public MoveAction(Direction direction) {
-        this.direction = direction;
+    public TurnAction(TurnType turnType) {
+        this.turnType = turnType;
     }
 
     @Override
@@ -18,12 +22,12 @@ public class MoveAction implements Action {
 
     @Override
     public int remainingCost() { 
-        return remaining;
+        return remaining; 
     }
 
     @Override
     public boolean canStart(GameContext ctx) {
-        return ctx.player.canMove(ctx.world, direction);
+        return true;
     }
 
     @Override
@@ -33,19 +37,29 @@ public class MoveAction implements Action {
     public void applyTick(GameContext ctx) {
         remaining--;
     }
-    
+
     @Override
     public boolean isFinished() {
         return remaining <= 0;
     }
-    
+
     @Override
     public void finish(GameContext ctx) {
-        ctx.player.move(ctx.world, direction);
+        switch (turnType) {
+            case LEFT:
+                ctx.player.turnLeft();
+                break;
+            case RIGHT:
+                ctx.player.turnRight();
+                break;
+            case AROUND:
+                ctx.player.turnAround();
+                break;
+        }
     }
 
     @Override
     public String toString() {
-        return "Move(" + direction + ")";
+        return "Turn(" + turnType + ")";
     }
 }

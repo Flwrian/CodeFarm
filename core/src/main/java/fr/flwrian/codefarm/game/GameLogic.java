@@ -4,7 +4,6 @@ import fr.flwrian.codefarm.environment.structures.Base;
 import fr.flwrian.codefarm.Player;
 import fr.flwrian.codefarm.action.Action;
 import fr.flwrian.codefarm.controller.Controller;
-import fr.flwrian.codefarm.controller.GameContext;
 import fr.flwrian.codefarm.controller.KeyboardController;
 import fr.flwrian.codefarm.controller.ScriptController;
 import fr.flwrian.codefarm.environment.World;
@@ -26,7 +25,7 @@ public class GameLogic {
     private final boolean debug;
 
     public GameLogic(boolean debug) {
-        this(50, debug);
+        this(100, debug);
     }
 
     public GameLogic(int ticksPerSecond, boolean debug) {
@@ -42,7 +41,7 @@ public class GameLogic {
 
         // Initialize controller
         controller = new ScriptController();
-        controller = new KeyboardController();
+        controller = new KeyboardController(ctx);
     }
 
     public void update(float dt) {
@@ -104,6 +103,10 @@ public class GameLogic {
 
     public Base getBase() {
         return base;
+    }
+
+    public GameContext getCtx() {
+        return ctx;
     }
 
     public Action getCurrentAction() {

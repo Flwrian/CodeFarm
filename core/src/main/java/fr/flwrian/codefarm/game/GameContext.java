@@ -1,4 +1,4 @@
-package fr.flwrian.codefarm.controller;
+package fr.flwrian.codefarm.game;
 
 import fr.flwrian.codefarm.environment.structures.Base;
 import fr.flwrian.codefarm.Player;
@@ -16,16 +16,12 @@ public class GameContext {
         this.base = b;
     }
 
-    /**
-     * Helper: récupère la structure où se trouve le joueur
-     */
+
     public Structure getCurrentStructure() {
         return world.getStructureContaining(player.x, player.y);
     }
 
-    /**
-     * Helper: vérifie si le joueur est dans une structure spécifique
-     */
+
     public <T extends Structure> T getPlayerStructure(Class<T> type) {
         Structure struct = getCurrentStructure();
         if (type.isInstance(struct)) {

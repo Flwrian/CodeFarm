@@ -4,6 +4,9 @@ function update()
     move("up")
     move("left")
     move("down")
-    harvest()
+    move("right")
+    for i = 1, 5 do
+      turnRight()
+    end
   end
 end

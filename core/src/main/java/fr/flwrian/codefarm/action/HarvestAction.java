@@ -1,6 +1,6 @@
 package fr.flwrian.codefarm.action;
 
-import fr.flwrian.codefarm.controller.GameContext;
+import fr.flwrian.codefarm.game.GameContext;
 
 public class HarvestAction implements Action {
     private int remaining = 50;

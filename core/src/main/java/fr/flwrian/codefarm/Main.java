@@ -1,36 +1,37 @@
 package fr.flwrian.codefarm;
 
-import fr.flwrian.codefarm.camera.GameCamera;
-import fr.flwrian.codefarm.camera.UICamera;
-import fr.flwrian.codefarm.ui.HudRenderer;
-import fr.flwrian.codefarm.rendering.WorldRenderer;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import fr.flwrian.codefarm.camera.GameCamera;
+import fr.flwrian.codefarm.camera.UICamera;
+import fr.flwrian.codefarm.rendering.ImprovedWorldRenderer;
+import fr.flwrian.codefarm.rendering.GridRenderer;
+import fr.flwrian.codefarm.rendering.DebugRenderer;
+import fr.flwrian.codefarm.ui.HudRenderer;
 import fr.flwrian.codefarm.game.GameLogic;
 
 public class Main extends ApplicationAdapter {
 
-    // Rendering
     private SpriteBatch batch;
     private BitmapFont font;
-    private WorldRenderer worldRenderer;
+    
+    private GameLogic gameLogic;
+    private ImprovedWorldRenderer worldRenderer;
+    private GridRenderer gridRenderer;
+    private DebugRenderer debugRenderer;
     private HudRenderer hudRenderer;
 
-    // Game logic
-    private GameLogic gameLogic;
-
-    // Cameras
     private GameCamera worldCamera;
     private UICamera uiCamera;
 
-    // Config
     private static final float WORLD_VIEW_WIDTH = 640;
     private static final float WORLD_VIEW_HEIGHT = 480;
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     @Override
     public void create() {
@@ -39,16 +40,18 @@ public class Main extends ApplicationAdapter {
 
         // Initialize game
         gameLogic = new GameLogic(DEBUG);
-
+        
         // Initialize cameras
         worldCamera = new GameCamera(WORLD_VIEW_WIDTH, WORLD_VIEW_HEIGHT);
         worldCamera.setTarget(gameLogic.getPlayer(), gameLogic.getWorld());
-        worldCamera.snapToTarget(); // Start at player position
-
+        worldCamera.snapToTarget();
+        
         uiCamera = new UICamera();
 
         // Initialize renderers
-        worldRenderer = new WorldRenderer(gameLogic.getWorld(), gameLogic.getPlayer());
+        worldRenderer = new ImprovedWorldRenderer(gameLogic.getWorld(), gameLogic.getPlayer());
+        gridRenderer = new GridRenderer(gameLogic.getWorld());
+        debugRenderer = new DebugRenderer(font);
         hudRenderer = new HudRenderer(font);
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -58,37 +61,62 @@ public class Main extends ApplicationAdapter {
     public void render() {
         float dt = Gdx.graphics.getDeltaTime();
 
-        // Update game logic
-        gameLogic.update(dt);
+        // Handle input
+        handleInput();
 
-        // Update cameras
+        // Update
+        gameLogic.update(dt);
         worldCamera.update(dt);
         uiCamera.update();
 
         // Render
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        renderWorld();
-        renderUI();
-    }
-
-    private void renderWorld() {
+        
+        // World
         batch.setProjectionMatrix(worldCamera.getCamera().combined);
         batch.begin();
         worldRenderer.render(batch);
         batch.end();
-    }
-
-    private void renderUI() {
+        
+        // Grid
+        gridRenderer.render(worldCamera.getCamera());
+        
+        // Debug shapes
+        debugRenderer.render(worldCamera.getCamera(), gameLogic.getCtx());
+        
+        // UI
         batch.setProjectionMatrix(uiCamera.getCamera().combined);
         batch.begin();
-        hudRenderer.render(batch,
-                gameLogic.getPlayer(),
-                gameLogic.getBase(),
-                gameLogic.getCurrentAction(),
-                gameLogic.getTickCount(),
-                uiCamera.getWidth(),
-                uiCamera.getHeight());
+        hudRenderer.render(batch, 
+            gameLogic.getPlayer(), 
+            gameLogic.getBase(),
+            gameLogic.getCurrentAction(),
+            gameLogic.getTickCount(),
+            uiCamera.getWidth(), 
+            uiCamera.getHeight());
+        
+        // Debug text
+        debugRenderer.renderPlayerInfo(batch, 
+            gameLogic.getPlayer(), 
+            gameLogic.getWorld(),
+            uiCamera.getWidth(), 
+            uiCamera.getHeight());
+        
         batch.end();
+    }
+
+    private void handleInput() {
+        // Toggle grid with G
+        if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
+            gridRenderer.toggle();
+            System.out.println("Grid: " + (gridRenderer.isEnabled() ? "ON" : "OFF"));
+        }
+        
+        // Toggle debug with F3
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
+            debugRenderer.toggle();
+            System.out.println("Debug: " + (debugRenderer.isEnabled() ? "ON" : "OFF"));
+        }
     }
 
     @Override
@@ -102,5 +130,7 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         font.dispose();
         worldRenderer.dispose();
+        gridRenderer.dispose();
+        debugRenderer.dispose();
     }
 }
