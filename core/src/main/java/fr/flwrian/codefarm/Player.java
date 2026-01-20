@@ -13,7 +13,7 @@ public class Player {
     public Player(int x, int y) {
         this.x = x;
         this.y = y;
-        this.inventory = new Inventory(100);
+        this.inventory = new Inventory(10);
     }
 
     public boolean canMove(World w, Direction dir) {

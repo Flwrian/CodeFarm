@@ -39,6 +39,4 @@ For example, `core:clean` removes `build` folder only from the `core` project.
 
 CodeFarm is a little project/game made with libGDX. The first goal of this project is to experiment with how I could build a simple game using Java. I also wanted to implement a system to allow scripting some actions in the game using external script files.
 
-The game is about managing a little farm, gathering resources, building structures, and expanding the farm. The player can control a character to perform various actions like moving, gathering resources, and building.
-
-This is not a very serious project at the moment, just a playground for me to learn and experiment with game development concepts and libGDX features but who knows, it might evolve into a cool little side project.
+I want to experiment with an idle/incremental game where the player can gather resources, build structures, and automate tasks. I don't have a clear vision of exactly how I want the game to be, so don't expect very much lol (especially for the graphics, I'm not an artist).
