@@ -15,7 +15,7 @@ import fr.flwrian.codefarm.rendering.DebugRenderer;
 import fr.flwrian.codefarm.ui.HudRenderer;
 import fr.flwrian.codefarm.game.GameLogic;
 
-public class Main extends ApplicationAdapter {
+public class Engine extends ApplicationAdapter {
 
     private SpriteBatch batch;
     private BitmapFont font;
