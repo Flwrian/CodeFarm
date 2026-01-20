@@ -10,5 +10,6 @@ public interface Action {
     void applyTick(GameContext ctx);
     boolean isFinished();
     void finish(GameContext ctx);
+    String toString();
 }
 
