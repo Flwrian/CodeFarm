@@ -6,7 +6,7 @@ function update()
     move("down")
     move("right")
     for i = 1, 5 do
-      turnRight()
+      turn("right")
     end
   end
 end

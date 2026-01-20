@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import fr.flwrian.codefarm.Player;
 import fr.flwrian.codefarm.environment.structures.Structure;
 import fr.flwrian.codefarm.game.GameContext;
+import fr.flwrian.codefarm.item.ItemType;
 import fr.flwrian.codefarm.environment.World;
 
 public class DebugRenderer {
@@ -104,7 +105,7 @@ public class DebugRenderer {
         font.draw(batch, "Position: (" + player.x + ", " + player.y + ")", 10, screenHeight - 40);
         font.draw(batch, "Direction: (" + player.direction.dx + ", " + player.direction.dy + ")", 10, screenHeight - 60);
         font.draw(batch, "Location: " + structName, 10, screenHeight - 80);
-        font.draw(batch, "Inventory: Wood=" + player.wood + " Stone=" + player.stone, 10, screenHeight - 100);
+        font.draw(batch, "Inventory: Wood=" + player.inventory.get(ItemType.WOOD) + " Stone=" + player.inventory.get(ItemType.STONE), 10, screenHeight - 100);
     }
 
     // Toggles

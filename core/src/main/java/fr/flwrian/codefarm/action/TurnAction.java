@@ -1,5 +1,6 @@
 package fr.flwrian.codefarm.action;
 
+import fr.flwrian.codefarm.Direction;
 import fr.flwrian.codefarm.game.GameContext;
 
 public class TurnAction implements Action {
@@ -13,6 +14,20 @@ public class TurnAction implements Action {
 
     public TurnAction(TurnType turnType) {
         this.turnType = turnType;
+    }
+
+    public TurnAction(Direction direction) {
+        switch (direction) {
+            case LEFT:
+                this.turnType = TurnType.LEFT;
+                break;
+            case RIGHT:
+                this.turnType = TurnType.RIGHT;
+                break;
+            default:
+                this.turnType = TurnType.AROUND;
+                break;
+        }
     }
 
     @Override

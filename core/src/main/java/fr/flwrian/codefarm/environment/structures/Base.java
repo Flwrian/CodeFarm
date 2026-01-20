@@ -1,28 +1,29 @@
 package fr.flwrian.codefarm.environment.structures;
 
 import fr.flwrian.codefarm.Player;
+import fr.flwrian.codefarm.item.Inventory;
+import fr.flwrian.codefarm.item.ItemType;
 
 public class Base extends Structure {
-    public int storedWood = 0;
-    public int storedStone = 0;
+    
+    public Inventory storage;
 
     public Base(int x, int y, int width, int height) {
         super("Base", x, y, width, height);
+        this.storage = new Inventory();
     }
+
 
     public void deposit(Player player) {
-        storedWood += player.wood;
-        storedStone += player.stone;
-        player.wood = 0;
-        player.stone = 0;
+        for (ItemType type : ItemType.values()) {
+            long amount = player.inventory.get(type);
+            if (amount > 0) {
+                player.inventory.transferAll(storage, type);
+            }
+        }
     }
 
-    public boolean withdraw(int wood, int stone) {
-        if (storedWood >= wood && storedStone >= stone) {
-            storedWood -= wood;
-            storedStone -= stone;
-            return true;
-        }
-        return false;
+    public boolean withdraw(Player player, ItemType type, long amount) {
+        return storage.transfer(player.inventory, type, amount);
     }
 }

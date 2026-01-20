@@ -63,26 +63,12 @@ public class ScriptController implements Controller {
             }
         });
 
-        globals.set("turnRight", new ZeroArgFunction() {
+        globals.set("turn", new OneArgFunction() {
             @Override
-            public LuaValue call() {
-                nextAction = new TurnAction(TurnAction.TurnType.RIGHT);
-                return globals.get("coroutine").get("yield").call();
-            }
-        });
-
-        globals.set("turnLeft", new ZeroArgFunction() {
-            @Override
-            public LuaValue call() {
-                nextAction = new TurnAction(TurnAction.TurnType.LEFT);
-                return globals.get("coroutine").get("yield").call();
-            }
-        });
-
-        globals.set("turnAround", new ZeroArgFunction() {
-            @Override
-            public LuaValue call() {
-                nextAction = new TurnAction(TurnAction.TurnType.AROUND);
+            public LuaValue call(LuaValue arg) {
+                String dirStr = arg.checkjstring();
+                Direction dir = Direction.fromString(dirStr);
+                nextAction = new TurnAction(dir);
                 return globals.get("coroutine").get("yield").call();
             }
         });
