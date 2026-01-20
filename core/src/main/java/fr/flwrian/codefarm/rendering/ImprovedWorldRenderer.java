@@ -11,7 +11,7 @@ import fr.flwrian.codefarm.environment.World;
 public class ImprovedWorldRenderer {
     
     private final World world;
-    private final Player player;
+    private final java.util.List<Player> players;
     
     private final Texture playerTex;
     private final Texture grassTex;
@@ -33,9 +33,9 @@ public class ImprovedWorldRenderer {
     private static final Color MINE_COLOR = new Color(0.3f, 0.3f, 0.3f, 1f);
     private static final Color SHOP_COLOR = new Color(0.9f, 0.7f, 0.2f, 1f);
 
-    public ImprovedWorldRenderer(World world, Player player) {
+    public ImprovedWorldRenderer(World world, java.util.List<Player> players) {
         this.world = world;
-        this.player = player;
+        this.players = players;
         
         playerTex = createTileTexture(PLAYER_COLOR, true);
         grassTex = createTileTexture(GRASS_COLOR, false);
@@ -62,32 +62,32 @@ public class ImprovedWorldRenderer {
             }
         }
 
-        // Draw player
-        float px = player.x * world.tileSize;
-        float py = player.y * world.tileSize;
-        
-        batch.draw(playerTex, px, py, world.tileSize, world.tileSize);
-        
-        // Draw direction arrow
-        float angle = player.direction.angle;
-        batch.draw(
-            arrowTex,
-            px + world.tileSize / 2f - arrowTex.getWidth() / 2f,
-            py + world.tileSize / 2f - arrowTex.getHeight() / 2f,
-            arrowTex.getWidth() / 2f,
-            arrowTex.getHeight() / 2f,
-            arrowTex.getWidth(),
-            arrowTex.getHeight(),
-            1f,
-            1f,
-            angle,
-            0,
-            0,
-            arrowTex.getWidth(),
-            arrowTex.getHeight(),
-            false,
-            false
-        );
+        // Draw all players
+        for (Player player : players) {
+            float px = player.x * world.tileSize;
+            float py = player.y * world.tileSize;
+            batch.draw(playerTex, px, py, world.tileSize, world.tileSize);
+            // Draw direction arrow
+            float angle = player.direction.angle;
+            batch.draw(
+                arrowTex,
+                px + world.tileSize / 2f - arrowTex.getWidth() / 2f,
+                py + world.tileSize / 2f - arrowTex.getHeight() / 2f,
+                arrowTex.getWidth() / 2f,
+                arrowTex.getHeight() / 2f,
+                arrowTex.getWidth(),
+                arrowTex.getHeight(),
+                1f,
+                1f,
+                angle,
+                0,
+                0,
+                arrowTex.getWidth(),
+                arrowTex.getHeight(),
+                false,
+                false
+            );
+        }
     }
 
     private Texture getTextureForTile(int tile) {

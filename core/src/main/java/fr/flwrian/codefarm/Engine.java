@@ -40,16 +40,16 @@ public class Engine extends ApplicationAdapter {
 
         // Initialize game
         gameLogic = new GameLogic(DEBUG);
-        
+
         // Initialize cameras
         worldCamera = new GameCamera(WORLD_VIEW_WIDTH, WORLD_VIEW_HEIGHT);
-        worldCamera.setTarget(gameLogic.getPlayer(), gameLogic.getWorld());
+        worldCamera.setTarget(gameLogic.getCurrentPlayer(), gameLogic.getWorld());
         worldCamera.snapToTarget();
-        
+
         uiCamera = new UICamera();
 
         // Initialize renderers
-        worldRenderer = new ImprovedWorldRenderer(gameLogic.getWorld(), gameLogic.getPlayer());
+        worldRenderer = new ImprovedWorldRenderer(gameLogic.getWorld(), gameLogic.getPlayers());
         gridRenderer = new GridRenderer(gameLogic.getWorld());
         debugRenderer = new DebugRenderer(font);
         hudRenderer = new HudRenderer(font);
@@ -66,42 +66,44 @@ public class Engine extends ApplicationAdapter {
 
         // Update
         gameLogic.update(dt);
+        // update camera current player
+        worldCamera.setTarget(gameLogic.getCurrentPlayer(), gameLogic.getWorld());
         worldCamera.update(dt);
         uiCamera.update();
 
         // Render
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        
+
         // World
         batch.setProjectionMatrix(worldCamera.getCamera().combined);
         batch.begin();
         worldRenderer.render(batch);
         batch.end();
-        
+
         // Grid
         gridRenderer.render(worldCamera.getCamera());
-        
+
         // Debug shapes
         debugRenderer.render(worldCamera.getCamera(), gameLogic.getCtx());
-        
+
         // UI
         batch.setProjectionMatrix(uiCamera.getCamera().combined);
         batch.begin();
-        hudRenderer.render(batch, 
-            gameLogic.getPlayer(), 
+        hudRenderer.render(batch,
+            gameLogic.getCurrentPlayer(),
             gameLogic.getBase(),
             gameLogic.getCurrentAction(),
             gameLogic.getTickCount(),
-            uiCamera.getWidth(), 
+            uiCamera.getWidth(),
             uiCamera.getHeight());
-        
+
         // Debug text
-        debugRenderer.renderPlayerInfo(batch, 
-            gameLogic.getPlayer(), 
+        debugRenderer.renderPlayerInfo(batch,
+            gameLogic.getCurrentPlayer(),
             gameLogic.getWorld(),
-            uiCamera.getWidth(), 
+            uiCamera.getWidth(),
             uiCamera.getHeight());
-        
+
         batch.end();
     }
 
@@ -111,11 +113,22 @@ public class Engine extends ApplicationAdapter {
             gridRenderer.toggle();
             System.out.println("Grid: " + (gridRenderer.isEnabled() ? "ON" : "OFF"));
         }
-        
+
         // Toggle debug with F3
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
             debugRenderer.toggle();
             System.out.println("Debug: " + (debugRenderer.isEnabled() ? "ON" : "OFF"));
+        }
+
+        // Switch player with TAB
+        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
+            java.util.List<fr.flwrian.codefarm.Player> players = gameLogic.getPlayers();
+            fr.flwrian.codefarm.Player current = gameLogic.getCurrentPlayer();
+            int idx = players.indexOf(current);
+            int nextIdx = (idx + 1) % players.size();
+            fr.flwrian.codefarm.Player nextPlayer = players.get(nextIdx);
+            gameLogic.switchToPlayer(nextPlayer);
+            System.out.println("Switched to player " + nextIdx);
         }
     }
 
