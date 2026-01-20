@@ -4,6 +4,8 @@ import fr.flwrian.codefarm.environment.World;
 import fr.flwrian.codefarm.item.Inventory;
 import fr.flwrian.codefarm.item.ItemType;
 
+import fr.flwrian.codefarm.recipe.Recipe;
+
 public class Player {
     public int x, y;
     public Direction direction = Direction.UP;
@@ -101,5 +103,24 @@ public class Player {
     
     public long getStone() {
         return inventory.get(ItemType.STONE);
+    }
+
+    // Crafting method
+    public boolean craft(Recipe recipe) {
+        // Check if player has all required items
+        for (var entry : recipe.inputs.entrySet()) {
+            if (inventory.get(entry.getKey()) < entry.getValue()) {
+                return false;
+            }
+        }
+        // Remove inputs
+        for (var entry : recipe.inputs.entrySet()) {
+            inventory.remove(entry.getKey(), entry.getValue());
+        }
+        // Add outputs
+        for (var entry : recipe.outputs.entrySet()) {
+            inventory.add(entry.getKey(), entry.getValue());
+        }
+        return true;
     }
 }
