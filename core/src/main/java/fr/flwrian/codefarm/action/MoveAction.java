@@ -27,7 +27,10 @@ public class MoveAction implements Action {
     }
 
     @Override
-    public void start(GameContext ctx) {}
+    public void start(GameContext ctx) {
+
+        ctx.player.move(ctx.world, direction);
+    }
 
     @Override
     public void applyTick(GameContext ctx) {
@@ -41,7 +44,6 @@ public class MoveAction implements Action {
     
     @Override
     public void finish(GameContext ctx) {
-        ctx.player.move(ctx.world, direction);
     }
 
     @Override
