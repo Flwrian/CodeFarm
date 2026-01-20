@@ -105,7 +105,7 @@ public class DebugRenderer {
         font.draw(batch, "Position: (" + player.x + ", " + player.y + ")", 10, screenHeight - 40);
         font.draw(batch, "Direction: (" + player.direction.dx + ", " + player.direction.dy + ")", 10, screenHeight - 60);
         font.draw(batch, "Location: " + structName, 10, screenHeight - 80);
-        font.draw(batch, "Inventory: Wood=" + player.inventory.get(ItemType.WOOD) + " Stone=" + player.inventory.get(ItemType.STONE), 10, screenHeight - 100);
+        // font.draw(batch, "Inventory: " + player.inventory.toString(), 10, screenHeight - 100);
     }
 
     // Toggles

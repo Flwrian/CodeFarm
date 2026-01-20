@@ -5,11 +5,13 @@ import com.badlogic.gdx.Input;
 
 import fr.flwrian.codefarm.Direction;
 import fr.flwrian.codefarm.action.Action;
+import fr.flwrian.codefarm.action.CraftAction;
 import fr.flwrian.codefarm.action.DepositAction;
 import fr.flwrian.codefarm.action.HarvestAction;
 import fr.flwrian.codefarm.action.MoveAction;
 import fr.flwrian.codefarm.action.TurnAction;
 import fr.flwrian.codefarm.game.GameContext;
+import fr.flwrian.codefarm.recipe.Recipes;
 
 public class KeyboardController implements Controller {
     
@@ -47,6 +49,11 @@ public class KeyboardController implements Controller {
         
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             return new DepositAction();
+        }
+
+        // C to craft plank
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+            return new CraftAction(Recipes.WOOD_TO_PLANK);
         }
         
         // if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {

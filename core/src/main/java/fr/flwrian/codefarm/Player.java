@@ -107,6 +107,13 @@ public class Player {
 
     // Crafting method
     public boolean craft(Recipe recipe) {
+
+        // Check for enough space
+        if (inventory.getRemainingSpace() < recipe.outputs.values().stream().mapToLong(Long::longValue).sum() - recipe.inputs.values().stream().mapToLong(Long::longValue).sum()) {
+            System.out.println("Not enough space to craft!");
+            return false;
+        }
+        
         // Check if player has all required items
         for (var entry : recipe.inputs.entrySet()) {
             if (inventory.get(entry.getKey()) < entry.getValue()) {
