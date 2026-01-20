@@ -45,4 +45,9 @@ public class CraftAction implements Action {
     public void finish(GameContext ctx) {
         
     }
+
+    @Override
+    public String toString() {
+        return "Craft(" + recipe.id + ")";
+    }
 }
