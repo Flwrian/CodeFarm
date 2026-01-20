@@ -77,7 +77,7 @@ public class Engine extends ApplicationAdapter {
         // World
         batch.setProjectionMatrix(worldCamera.getCamera().combined);
         batch.begin();
-        worldRenderer.render(batch);
+        worldRenderer.render(batch, gameLogic.getCurrentPlayer());
         batch.end();
 
         // Grid

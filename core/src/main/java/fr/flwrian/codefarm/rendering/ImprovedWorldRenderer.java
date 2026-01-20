@@ -14,6 +14,7 @@ public class ImprovedWorldRenderer {
     private final java.util.List<Player> players;
     
     private final Texture playerTex;
+    private final Texture currentPlayerTex;
     private final Texture grassTex;
     private final Texture treeTex;
     private final Texture stoneTex;
@@ -29,6 +30,7 @@ public class ImprovedWorldRenderer {
     private static final Color STONE_COLOR = new Color(0.5f, 0.5f, 0.5f, 1f);
     private static final Color BASE_COLOR = new Color(0.8f, 0.6f, 0.3f, 1f);
     private static final Color PLAYER_COLOR = new Color(1f, 0.3f, 0.3f, 1f);
+    private static final Color CURRENT_PLAYER_COLOR = new Color(0.3f, 0.3f, 1f, 1f);
     private static final Color FOREST_COLOR = new Color(0.15f, 0.4f, 0.15f, 1f);
     private static final Color MINE_COLOR = new Color(0.3f, 0.3f, 0.3f, 1f);
     private static final Color SHOP_COLOR = new Color(0.9f, 0.7f, 0.2f, 1f);
@@ -36,8 +38,9 @@ public class ImprovedWorldRenderer {
     public ImprovedWorldRenderer(World world, java.util.List<Player> players) {
         this.world = world;
         this.players = players;
-        
+
         playerTex = createTileTexture(PLAYER_COLOR, true);
+        currentPlayerTex = createTileTexture(CURRENT_PLAYER_COLOR, true);
         grassTex = createTileTexture(GRASS_COLOR, false);
         treeTex = createTileTexture(TREE_COLOR, true);
         stoneTex = createTileTexture(STONE_COLOR, true);
@@ -49,7 +52,7 @@ public class ImprovedWorldRenderer {
         arrowTex = createArrowTexture();
     }
 
-    public void render(SpriteBatch batch) {
+    public void render(SpriteBatch batch, Player currentPlayer) {
         // Draw tiles
         for (int tx = 0; tx < world.width; tx++) {
             for (int ty = 0; ty < world.height; ty++) {
@@ -66,7 +69,10 @@ public class ImprovedWorldRenderer {
         for (Player player : players) {
             float px = player.x * world.tileSize;
             float py = player.y * world.tileSize;
-            batch.draw(playerTex, px, py, world.tileSize, world.tileSize);
+            
+            // Choose texture based on whether it's the current player
+            Texture texToDraw = (player == currentPlayer) ? currentPlayerTex : playerTex;
+            batch.draw(texToDraw, px, py, world.tileSize, world.tileSize);
             // Draw direction arrow
             float angle = player.direction.angle;
             batch.draw(

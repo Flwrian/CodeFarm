@@ -95,7 +95,6 @@ public class ScriptController implements Controller {
         nextAction = null;
         LuaValue status = globals.get("coroutine").get("status").call(coroutine);
         String statusStr = status.tojstring();
-        System.out.println("🔄 Coroutine status: " + statusStr);
         
         if (statusStr.equals("suspended")) {
             LuaValue result = globals.get("coroutine").get("resume").call(coroutine);
