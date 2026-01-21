@@ -11,8 +11,8 @@ import fr.flwrian.codefarm.environment.structures.Shop;
 import fr.flwrian.codefarm.environment.structures.Structure;
 
 public class World {
-    public int width = 200;
-    public int height = 150;
+    public int width = 8;
+    public int height = 8;
     public int tileSize = 32;
 
     // Tile types
@@ -47,7 +47,7 @@ public class World {
         }
 
         // Générer des arbres aléatoires
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 50; i++) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
             if (tiles[x][y] == GRASS) {
@@ -56,7 +56,7 @@ public class World {
         }
 
         // Générer des pierres aléatoires
-        for (int i = 0; i < 300; i++) {
+        for (int i = 0; i < 30; i++) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
             if (tiles[x][y] == GRASS) {
@@ -64,13 +64,15 @@ public class World {
             }
         }
 
+        tiles[0][0] = EMPTY;
         // Créer la base
-        createBase(10, 10);
+        createBase(0, 0);
 
         // Créer des zones spéciales
-        createForest("Dark Forest", 50, 50, 20, 15);
-        createMine("Iron Mine", 100, 80, 15, 10);
-        createShop("Trading Post", 15, 15);
+        // createForest("Dark Forest", 50, 50, 20, 15);
+        // createMine("Iron Mine", 100, 80, 15, 10);
+        // createShop("Trading Post", 15, 15);
+
     }
 
     // ========================================================================

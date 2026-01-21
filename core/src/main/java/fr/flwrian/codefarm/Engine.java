@@ -264,6 +264,22 @@ public class Engine extends ApplicationAdapter {
             gameLogic.switchToPlayer(nextPlayer);
             System.out.println("Switched to player " + nextIdx);
         }
+
+        // camera zooming (use GameCamera methods so zoom is clamped)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ADD)) {
+            worldCamera.zoomIn();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_SUBTRACT)) {
+            worldCamera.zoomOut();
+        }
+        // Also support main keyboard '+' and '-' keys
+        if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS) || Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
+            worldCamera.zoomIn();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
+            worldCamera.zoomOut();
+        }
+
     }
 
     @Override

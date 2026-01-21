@@ -3,6 +3,7 @@ package fr.flwrian.codefarm.camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.math.MathUtils;
 
 import fr.flwrian.codefarm.Player;
 import fr.flwrian.codefarm.environment.World;
@@ -15,6 +16,10 @@ public class GameCamera {
     private final float viewWidth;
     private final float viewHeight;
     private final float followSpeed;
+    // Zoom settings
+    private float minZoom = 0.5f;
+    private float maxZoom = 3.0f;
+    private float zoomStep = 0.1f;
     
     private Player target;
     private World world;
@@ -85,25 +90,54 @@ public class GameCamera {
         
         float worldWidth = world.width * world.tileSize;
         float worldHeight = world.height * world.tileSize;
-        float halfViewWidth = camera.viewportWidth / 2f;
-        float halfViewHeight = camera.viewportHeight / 2f;
+        // Account for camera zoom: visible size = viewportSize * zoom
+        float visibleWidth = camera.viewportWidth * camera.zoom;
+        float visibleHeight = camera.viewportHeight * camera.zoom;
+        float halfViewWidth = visibleWidth / 2f;
+        float halfViewHeight = visibleHeight / 2f;
 
-        // Clamp X
-        if (worldWidth <= camera.viewportWidth) {
+        // Clamp X: if world is smaller than visible area, center on world; otherwise clamp to edges
+        if (worldWidth <= visibleWidth) {
             camera.position.x = worldWidth / 2f;
         } else {
-            camera.position.x = Math.max(halfViewWidth, 
-                Math.min(camera.position.x, worldWidth - halfViewWidth));
+            camera.position.x = Math.max(halfViewWidth,
+                    Math.min(camera.position.x, worldWidth - halfViewWidth));
         }
 
         // Clamp Y
-        if (worldHeight <= camera.viewportHeight) {
+        if (worldHeight <= visibleHeight) {
             camera.position.y = worldHeight / 2f;
         } else {
-            camera.position.y = Math.max(halfViewHeight, 
-                Math.min(camera.position.y, worldHeight - halfViewHeight));
+            camera.position.y = Math.max(halfViewHeight,
+                    Math.min(camera.position.y, worldHeight - halfViewHeight));
         }
     }
+
+    /**
+     * Zoom in (closer)
+     */
+    public void zoomIn() {
+        setZoom(camera.zoom - zoomStep);
+    }
+
+    /**
+     * Zoom out (farther)
+     */
+    public void zoomOut() {
+        setZoom(camera.zoom + zoomStep);
+    }
+
+    /**
+     * Set absolute zoom with clamping
+     */
+    public void setZoom(float z) {
+        camera.zoom = MathUtils.clamp(z, minZoom, maxZoom);
+        clampToWorld();
+        camera.update();
+    }
+
+    public void setZoomStep(float step) { this.zoomStep = step; }
+    public void setZoomLimits(float min, float max) { this.minZoom = min; this.maxZoom = max; }
 
     /**
      * Resize the viewport

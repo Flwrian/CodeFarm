@@ -37,12 +37,12 @@ public class GameLogic {
         world = new World();
         base = world.getBase();
 
-        Player p1 = new Player(1, 1);
-        Player p2 = new Player(3, 3);
-        Player p3 = new Player(5, 5);
+        Player p1 = new Player(0, 0);
+        // Player p2 = new Player(3, 3);
+        // Player p3 = new Player(5, 5);
         players.add(p1);
-        players.add(p2);
-        players.add(p3);
+        // players.add(p2);
+        // players.add(p3);
 
         for (Player p : players) {
             GameContext ctx = new GameContext(p, world, base);
@@ -51,8 +51,8 @@ public class GameLogic {
 
         currentPlayer = p1;
         controllers.put(p1, new KeyboardController(contexts.get(p1)));
-        controllers.put(p2, new ScriptController());
-        controllers.put(p3, new ScriptController());
+        // controllers.put(p2, new ScriptController());
+        // controllers.put(p3, new ScriptController());
     }
 
     public void update(float dt) {

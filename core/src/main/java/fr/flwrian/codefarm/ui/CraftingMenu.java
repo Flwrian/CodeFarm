@@ -30,6 +30,7 @@ public class CraftingMenu extends Window {
     private final Skin skin;
     private final fr.flwrian.codefarm.Player player;
     private final Label feedbackLabel;
+    private final Label hoverLabel;
 
     public CraftingMenu(Skin skin, RecipeManager recipeManager, fr.flwrian.codefarm.Player player) {
         super("Crafting", skin);
@@ -69,6 +70,7 @@ public class CraftingMenu extends Window {
         this.detailsTable = new Table(skin);
         this.craftButton = new TextButton("Craft", skin);
         this.feedbackLabel = new Label("", skin);
+    this.hoverLabel = new Label("", skin);
         setupLayout();
         setupListeners();
         setSize(600, 400);
@@ -90,6 +92,8 @@ public class CraftingMenu extends Window {
         add(craftButton).colspan(2).padTop(10);
         row();
         add(feedbackLabel).colspan(2).padTop(6);
+        row();
+        add(hoverLabel).colspan(2).padTop(4);
         updateDetails(null);
     }
 
@@ -99,6 +103,24 @@ public class CraftingMenu extends Window {
             public void changed(ChangeEvent event, Actor actor) {
                 Recipe selected = recipeListWidget.getSelected();
                 updateDetails(selected);
+            }
+        });
+
+        // Update hoverLabel when selection changes (also useful for keyboard nav)
+        recipeListWidget.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Recipe sel = recipeListWidget.getSelected();
+                if (sel == null) {
+                    hoverLabel.setText("");
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("In: ");
+                    sel.inputs.forEach((k, v) -> sb.append(k.displayName).append(" x").append(v).append(", "));
+                    sb.append("\nOut: ");
+                    sel.outputs.forEach((k, v) -> sb.append(k.displayName).append(" x").append(v).append(", "));
+                    hoverLabel.setText(sb.toString());
+                }
             }
         });
         craftButton.addListener(new ChangeListener() {
