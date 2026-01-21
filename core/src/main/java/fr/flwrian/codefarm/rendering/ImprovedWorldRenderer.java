@@ -1,5 +1,7 @@
 package fr.flwrian.codefarm.rendering;
 
+import java.util.List;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -7,12 +9,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import fr.flwrian.codefarm.Player;
+import fr.flwrian.codefarm.environment.TileType;
 import fr.flwrian.codefarm.environment.World;
 
 public class ImprovedWorldRenderer {
     
     private final World world;
-    private final java.util.List<Player> players;
+    private final List<Player> players;
     
     private final Texture playerTex;
     private final Texture currentPlayerTex;
@@ -114,14 +117,14 @@ public class ImprovedWorldRenderer {
         return lastRenderedTileCount;
     }
 
-    private Texture getTextureForTile(int tile) {
+    private Texture getTextureForTile(TileType tile) {
         switch (tile) {
-            case World.TREE: return treeTex;
-            case World.STONE: return stoneTex;
-            case World.BASE: return baseTex;
-            case World.FOREST: return forestTex;
-            case World.MINE: return mineTex;
-            case World.SHOP: return shopTex;
+            case TREE: return treeTex;
+            case STONE: return stoneTex;
+            case BASE: return baseTex;
+            case FOREST: return forestTex;
+            case MINE: return mineTex;
+            case SHOP: return shopTex;
             default: return grassTex;
         }
     }

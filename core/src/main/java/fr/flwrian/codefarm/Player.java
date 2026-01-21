@@ -1,5 +1,6 @@
 package fr.flwrian.codefarm;
 
+import fr.flwrian.codefarm.environment.TileType;
 import fr.flwrian.codefarm.environment.World;
 import fr.flwrian.codefarm.item.Inventory;
 import fr.flwrian.codefarm.item.ItemType;
@@ -25,9 +26,9 @@ public class Player {
         if (!isInBounds(w, newX, newY)) {
             return false;
         }
-        
-        int tile = w.getTile(newX, newY);
-        return tile != World.TREE && tile != World.STONE;
+
+        TileType tile = w.getTile(newX, newY);
+        return tile != TileType.TREE && tile != TileType.STONE;
     }
 
     public boolean move(World w, Direction dir) {
@@ -48,23 +49,23 @@ public class Player {
         if (!isInBounds(w, targetX, targetY)) {
             return false;
         }
-        
-        int tile = w.getTile(targetX, targetY);
-        
-        if (tile == World.TREE) {
+
+        TileType tile = w.getTile(targetX, targetY);
+
+        if (tile == TileType.TREE) {
             if (inventory.isFull()) {
                 return false;
             }
-            w.setTile(targetX, targetY, World.GRASS);
+            w.setTile(targetX, targetY, TileType.GRASS);
             inventory.add(ItemType.WOOD, 1);
             return true;
         }
         
-        if (tile == World.STONE) {
+        if (tile == TileType.STONE) {
             if (inventory.isFull()) {
                 return false;
             }
-            w.setTile(targetX, targetY, World.GRASS);
+            w.setTile(targetX, targetY, TileType.GRASS);
             inventory.add(ItemType.STONE, 1);
             return true;
         }

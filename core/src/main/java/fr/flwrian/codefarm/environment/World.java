@@ -25,13 +25,14 @@ public class World {
     public static final int MINE = 6;
     public static final int SHOP = 7;
 
-    private int[][] tiles;
+    private TileType[][] tiles;
+
     
     // Map des structures par position
     private Map<String, Structure> structures;
 
     public World() {
-        tiles = new int[width][height];
+        tiles = new TileType[width][height];
         structures = new HashMap<>();
         generate();
     }
@@ -42,7 +43,7 @@ public class World {
         // Remplir d'herbe
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                tiles[x][y] = GRASS;
+                tiles[x][y] = TileType.GRASS;
             }
         }
 
@@ -50,8 +51,8 @@ public class World {
         for (int i = 0; i < 50; i++) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
-            if (tiles[x][y] == GRASS) {
-                tiles[x][y] = TREE;
+            if (tiles[x][y] == TileType.GRASS) {
+                tiles[x][y] = TileType.TREE;
             }
         }
 
@@ -59,12 +60,12 @@ public class World {
         for (int i = 0; i < 30; i++) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
-            if (tiles[x][y] == GRASS) {
-                tiles[x][y] = STONE;
+            if (tiles[x][y] == TileType.GRASS) {
+                tiles[x][y] = TileType.STONE;
             }
         }
 
-        tiles[0][0] = EMPTY;
+        tiles[0][0] = TileType.EMPTY;
         // Créer la base
         createBase(0, 0);
 
@@ -79,14 +80,14 @@ public class World {
     // Gestion des tiles
     // ========================================================================
 
-    public int getTile(int x, int y) {
+    public TileType getTile(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
-            return -1;
+            return null;
         }
         return tiles[x][y];
     }
 
-    public void setTile(int x, int y, int tileType) {
+    public void setTile(int x, int y, TileType tileType) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return;
         }
@@ -101,7 +102,7 @@ public class World {
         // Marquer les tiles
         for (int dx = 0; dx < 3; dx++) {
             for (int dy = 0; dy < 3; dy++) {
-                setTile(x + dx, y + dy, BASE);
+                setTile(x + dx, y + dy, TileType.BASE);
             }
         }
 
@@ -114,15 +115,15 @@ public class World {
         // Remplir la zone d'arbres
         for (int dx = 0; dx < width; dx++) {
             for (int dy = 0; dy < height; dy++) {
-                if (getTile(x + dx, y + dy) == GRASS) {
-                    setTile(x + dx, y + dy, TREE);
+                if (getTile(x + dx, y + dy) == TileType.GRASS) {
+                    setTile(x + dx, y + dy, TileType.TREE);
                 }
             }
         }
 
         // Marquer les coins comme FOREST pour identification
-        setTile(x, y, FOREST);
-        setTile(x + width - 1, y + height - 1, FOREST);
+        setTile(x, y, TileType.FOREST);
+        setTile(x + width - 1, y + height - 1, TileType.FOREST);
 
         // Créer l'objet Forest
         Forest forest = new Forest(name, x, y, width, height);
@@ -133,19 +134,19 @@ public class World {
         // Remplir la zone de pierres
         for (int dx = 0; dx < width; dx++) {
             for (int dy = 0; dy < height; dy++) {
-                if (getTile(x + dx, y + dy) == GRASS) {
-                    setTile(x + dx, y + dy, STONE);
+                if (getTile(x + dx, y + dy) == TileType.GRASS) {
+                    setTile(x + dx, y + dy, TileType.STONE);
                 }
             }
         }
 
-        setTile(x, y, MINE);
+        setTile(x, y, TileType.MINE);
         Mine mine = new Mine(name, x, y, width, height);
         structures.put(posKey(x, y), mine);
     }
 
     private void createShop(String name, int x, int y) {
-        setTile(x, y, SHOP);
+        setTile(x, y, TileType.SHOP);
         Shop shop = new Shop(name, x, y);
         structures.put(posKey(x, y), shop);
     }
@@ -194,13 +195,13 @@ public class World {
     // ========================================================================
 
     public boolean isWalkable(int x, int y) {
-        int tile = getTile(x, y);
-        return tile == GRASS || tile == BASE || tile == FOREST || 
-               tile == MINE || tile == SHOP;
+        TileType tile = getTile(x, y);
+        return tile == TileType.GRASS || tile == TileType.BASE || tile == TileType.FOREST || 
+               tile == TileType.MINE || tile == TileType.SHOP;
     }
 
     public boolean isHarvestable(int x, int y) {
-        int tile = getTile(x, y);
-        return tile == TREE || tile == STONE;
+        TileType tile = getTile(x, y);
+        return tile == TileType.TREE || tile == TileType.STONE;
     }
 }
