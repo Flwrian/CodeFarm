@@ -47,14 +47,14 @@ public class KeyboardController implements Controller {
             return new HarvestAction();
         }
         
-        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             return new DepositAction();
         }
 
         // C to craft plank
-        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
-            return new CraftAction(Recipes.WOOD_TO_PLANK);
-        }
+        // if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+        //     return new CraftAction(Recipes.WOOD_TO_PLANK);
+        // }
         
         // if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
         //     return new TurnAction(TurnAction.TurnType.LEFT);

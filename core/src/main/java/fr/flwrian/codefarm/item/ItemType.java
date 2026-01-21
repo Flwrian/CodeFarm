@@ -4,6 +4,7 @@ public enum ItemType {
     // Tier 1 - Basic resources
     WOOD("Wood", "Basic wood from trees", 1),
     STONE("Stone", "Basic stone from rocks", 1),
+    STICK("Stick", "Wooden stick", 1),
     
     // Tier 2 - Advanced resources
     IRON("Iron", "Iron ore from mines", 2),

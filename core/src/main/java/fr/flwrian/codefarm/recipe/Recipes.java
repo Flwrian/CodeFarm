@@ -10,8 +10,15 @@ public class Recipes {
         Map.of(ItemType.PLANK, 4L)
     );
 
+    public static final Recipe PLANK_TO_STICK = new Recipe(
+        "plank_to_stick",
+        Map.of(ItemType.PLANK, 2L),
+        Map.of(ItemType.STICK, 4L)
+    );
+
 
     public static void registerAll(RecipeManager manager) {
         manager.register(WOOD_TO_PLANK);
+        manager.register(PLANK_TO_STICK);
     }
 }

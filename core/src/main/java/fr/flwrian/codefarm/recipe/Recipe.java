@@ -13,4 +13,9 @@ public class Recipe {
         this.inputs = inputs;
         this.outputs = outputs;
     }
+
+    @Override
+    public String toString() {
+        return id;
+    }
 }

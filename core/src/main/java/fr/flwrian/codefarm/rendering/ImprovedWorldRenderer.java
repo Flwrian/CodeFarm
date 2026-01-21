@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import fr.flwrian.codefarm.Player;
 import fr.flwrian.codefarm.environment.World;
@@ -34,6 +35,7 @@ public class ImprovedWorldRenderer {
     private static final Color FOREST_COLOR = new Color(0.15f, 0.4f, 0.15f, 1f);
     private static final Color MINE_COLOR = new Color(0.3f, 0.3f, 0.3f, 1f);
     private static final Color SHOP_COLOR = new Color(0.9f, 0.7f, 0.2f, 1f);
+    private int lastRenderedTileCount = 0;
 
     public ImprovedWorldRenderer(World world, java.util.List<Player> players) {
         this.world = world;
@@ -52,28 +54,40 @@ public class ImprovedWorldRenderer {
         arrowTex = createArrowTexture();
     }
 
-    public void render(SpriteBatch batch, Player currentPlayer) {
-        // Draw tiles
-        for (int tx = 0; tx < world.width; tx++) {
-            for (int ty = 0; ty < world.height; ty++) {
+    public void render(SpriteBatch batch, Player currentPlayer, OrthographicCamera camera) {
+        // Calculate visible tile range from camera
+        int startX = Math.max(0, (int)((camera.position.x - camera.viewportWidth / 2f) / world.tileSize) - 1);
+        int endX = Math.min(world.width - 1, (int)((camera.position.x + camera.viewportWidth / 2f) / world.tileSize) + 1);
+        int startY = Math.max(0, (int)((camera.position.y - camera.viewportHeight / 2f) / world.tileSize) - 1);
+        int endY = Math.min(world.height - 1, (int)((camera.position.y + camera.viewportHeight / 2f) / world.tileSize) + 1);
+
+        // Draw only visible tiles
+        int rendered = 0;
+        for (int tx = startX; tx <= endX; tx++) {
+            for (int ty = startY; ty <= endY; ty++) {
                 Texture tex = getTextureForTile(world.getTile(tx, ty));
-                batch.draw(tex, 
-                    tx * world.tileSize, 
+                batch.draw(tex,
+                    tx * world.tileSize,
                     ty * world.tileSize,
-                    world.tileSize, 
+                    world.tileSize,
                     world.tileSize);
+                rendered++;
             }
         }
+        lastRenderedTileCount = rendered;
 
-        // Draw all players
+        // Draw players only if visible
         for (Player player : players) {
-            float px = player.x * world.tileSize;
-            float py = player.y * world.tileSize;
-            
-            // Choose texture based on whether it's the current player
+            int pxTile = player.x;
+            int pyTile = player.y;
+            if (pxTile < startX - 1 || pxTile > endX + 1 || pyTile < startY - 1 || pyTile > endY + 1) continue;
+
+            float px = pxTile * world.tileSize;
+            float py = pyTile * world.tileSize;
+
             Texture texToDraw = (player == currentPlayer) ? currentPlayerTex : playerTex;
             batch.draw(texToDraw, px, py, world.tileSize, world.tileSize);
-            // Draw direction arrow
+
             float angle = player.direction.angle;
             batch.draw(
                 arrowTex,
@@ -94,6 +108,10 @@ public class ImprovedWorldRenderer {
                 false
             );
         }
+    }
+
+    public int getLastRenderedTileCount() {
+        return lastRenderedTileCount;
     }
 
     private Texture getTextureForTile(int tile) {
